@@ -35,7 +35,7 @@ export default function App() {
 
   useEffect(() => {
     if (!showIntro) return;
-    const timer = window.setTimeout(() => setShowIntro(false), 2500);
+    const timer = window.setTimeout(() => setShowIntro(false), 5000);
     return () => window.clearTimeout(timer);
   }, [showIntro]);
 
@@ -205,115 +205,18 @@ export default function App() {
   </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite">
     <div className="loading-grain" aria-hidden="true" />
     <div className="loader-bunnies" aria-hidden="true">
-      <svg className="loader-bunny bunny-one" viewBox="0 0 120 90" aria-hidden="true">
-      <ellipse className="bunny-shadow" cx="56" cy="79" rx="30" ry="4" />
-      <g className="bunny-body">
-        <g className="bunny-ears">
-          <ellipse cx="72" cy="22" rx="6.5" ry="21" transform="rotate(8 72 22)" fill="#fffafc" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="88" cy="23" rx="6" ry="18" transform="rotate(18 88 23)" fill="#fffafc" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="73" cy="22" rx="2.7" ry="14" transform="rotate(8 73 22)" fill="#efc9d8" />
-          <ellipse cx="88" cy="23" rx="2.5" ry="12" transform="rotate(18 88 23)" fill="#efc9d8" />
-        </g>
-        <ellipse cx="51" cy="59" rx="30" ry="19" fill="#fffafc" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="31" cy="57" rx="8" ry="8" fill="#fffafc" stroke="#c99bb0" strokeWidth="1" />
-        <circle cx="79" cy="43" r="16" fill="#fffafc" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="88" cy="49" rx="8" ry="6" fill="#fff8fa" opacity=".9" />
-        <circle cx="84" cy="41" r="1.8" fill="#725565" />
-        <circle cx="94" cy="50" r="2" fill="#d98fae" />
-        <ellipse cx="43" cy="74" rx="12" ry="5" fill="#fffafc" stroke="#c99bb0" strokeWidth=".8" />
-        <ellipse cx="70" cy="74" rx="11" ry="5" fill="#fffafc" stroke="#c99bb0" strokeWidth=".8" />
-        <path d="M91 54 Q96 57 99 53" fill="none" stroke="#a77c91" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="99" cy="55" r="2" fill="#f0bfd0" opacity=".8" />
-      </g>
-    </svg>
-      <svg className="loader-bunny bunny-two" viewBox="0 0 120 90" aria-hidden="true">
-      <ellipse className="bunny-shadow" cx="56" cy="79" rx="30" ry="4" />
-      <g className="bunny-body">
-        <g className="bunny-ears">
-          <ellipse cx="72" cy="22" rx="6.5" ry="21" transform="rotate(8 72 22)" fill="#f5e9ef" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="88" cy="23" rx="6" ry="18" transform="rotate(18 88 23)" fill="#f5e9ef" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="73" cy="22" rx="2.7" ry="14" transform="rotate(8 73 22)" fill="#d9a9bf" />
-          <ellipse cx="88" cy="23" rx="2.5" ry="12" transform="rotate(18 88 23)" fill="#d9a9bf" />
-        </g>
-        <ellipse cx="51" cy="59" rx="30" ry="19" fill="#f5e9ef" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="31" cy="57" rx="8" ry="8" fill="#f5e9ef" stroke="#c99bb0" strokeWidth="1" />
-        <circle cx="79" cy="43" r="16" fill="#f5e9ef" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="88" cy="49" rx="8" ry="6" fill="#fff8fa" opacity=".9" />
-        <circle cx="84" cy="41" r="1.8" fill="#725565" />
-        <circle cx="94" cy="50" r="2" fill="#d98fae" />
-        <ellipse cx="43" cy="74" rx="12" ry="5" fill="#f5e9ef" stroke="#c99bb0" strokeWidth=".8" />
-        <ellipse cx="70" cy="74" rx="11" ry="5" fill="#f5e9ef" stroke="#c99bb0" strokeWidth=".8" />
-        <path d="M91 54 Q96 57 99 53" fill="none" stroke="#a77c91" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="99" cy="55" r="2" fill="#f0bfd0" opacity=".8" />
-      </g>
-    </svg>
-      <svg className="loader-bunny bunny-three" viewBox="0 0 120 90" aria-hidden="true">
-      <ellipse className="bunny-shadow" cx="56" cy="79" rx="30" ry="4" />
-      <g className="bunny-body">
-        <g className="bunny-ears">
-          <ellipse cx="72" cy="22" rx="6.5" ry="21" transform="rotate(8 72 22)" fill="#fff" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="88" cy="23" rx="6" ry="18" transform="rotate(18 88 23)" fill="#fff" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="73" cy="22" rx="2.7" ry="14" transform="rotate(8 73 22)" fill="#edc1d2" />
-          <ellipse cx="88" cy="23" rx="2.5" ry="12" transform="rotate(18 88 23)" fill="#edc1d2" />
-        </g>
-        <ellipse cx="51" cy="59" rx="30" ry="19" fill="#fff" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="31" cy="57" rx="8" ry="8" fill="#fff" stroke="#c99bb0" strokeWidth="1" />
-        <circle cx="79" cy="43" r="16" fill="#fff" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="88" cy="49" rx="8" ry="6" fill="#fff8fa" opacity=".9" />
-        <circle cx="84" cy="41" r="1.8" fill="#725565" />
-        <circle cx="94" cy="50" r="2" fill="#d98fae" />
-        <ellipse cx="43" cy="74" rx="12" ry="5" fill="#fff" stroke="#c99bb0" strokeWidth=".8" />
-        <ellipse cx="70" cy="74" rx="11" ry="5" fill="#fff" stroke="#c99bb0" strokeWidth=".8" />
-        <path d="M91 54 Q96 57 99 53" fill="none" stroke="#a77c91" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="99" cy="55" r="2" fill="#f0bfd0" opacity=".8" />
-      </g>
-    </svg>
-      <svg className="loader-bunny bunny-four" viewBox="0 0 120 90" aria-hidden="true">
-      <ellipse className="bunny-shadow" cx="56" cy="79" rx="30" ry="4" />
-      <g className="bunny-body">
-        <g className="bunny-ears">
-          <ellipse cx="72" cy="22" rx="6.5" ry="21" transform="rotate(8 72 22)" fill="#f1e7f5" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="88" cy="23" rx="6" ry="18" transform="rotate(18 88 23)" fill="#f1e7f5" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="73" cy="22" rx="2.7" ry="14" transform="rotate(8 73 22)" fill="#d8b5df" />
-          <ellipse cx="88" cy="23" rx="2.5" ry="12" transform="rotate(18 88 23)" fill="#d8b5df" />
-        </g>
-        <ellipse cx="51" cy="59" rx="30" ry="19" fill="#f1e7f5" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="31" cy="57" rx="8" ry="8" fill="#f1e7f5" stroke="#c99bb0" strokeWidth="1" />
-        <circle cx="79" cy="43" r="16" fill="#f1e7f5" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="88" cy="49" rx="8" ry="6" fill="#fff8fa" opacity=".9" />
-        <circle cx="84" cy="41" r="1.8" fill="#725565" />
-        <circle cx="94" cy="50" r="2" fill="#d98fae" />
-        <ellipse cx="43" cy="74" rx="12" ry="5" fill="#f1e7f5" stroke="#c99bb0" strokeWidth=".8" />
-        <ellipse cx="70" cy="74" rx="11" ry="5" fill="#f1e7f5" stroke="#c99bb0" strokeWidth=".8" />
-        <path d="M91 54 Q96 57 99 53" fill="none" stroke="#a77c91" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="99" cy="55" r="2" fill="#f0bfd0" opacity=".8" />
-      </g>
-    </svg>
-      <svg className="loader-bunny bunny-five" viewBox="0 0 120 90" aria-hidden="true">
-      <ellipse className="bunny-shadow" cx="56" cy="79" rx="30" ry="4" />
-      <g className="bunny-body">
-        <g className="bunny-ears">
-          <ellipse cx="72" cy="22" rx="6.5" ry="21" transform="rotate(8 72 22)" fill="#fff8ef" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="88" cy="23" rx="6" ry="18" transform="rotate(18 88 23)" fill="#fff8ef" stroke="#c99bb0" strokeWidth="1" />
-          <ellipse cx="73" cy="22" rx="2.7" ry="14" transform="rotate(8 73 22)" fill="#eac3b1" />
-          <ellipse cx="88" cy="23" rx="2.5" ry="12" transform="rotate(18 88 23)" fill="#eac3b1" />
-        </g>
-        <ellipse cx="51" cy="59" rx="30" ry="19" fill="#fff8ef" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="31" cy="57" rx="8" ry="8" fill="#fff8ef" stroke="#c99bb0" strokeWidth="1" />
-        <circle cx="79" cy="43" r="16" fill="#fff8ef" stroke="#c99bb0" strokeWidth="1" />
-        <ellipse cx="88" cy="49" rx="8" ry="6" fill="#fff8fa" opacity=".9" />
-        <circle cx="84" cy="41" r="1.8" fill="#725565" />
-        <circle cx="94" cy="50" r="2" fill="#d98fae" />
-        <ellipse cx="43" cy="74" rx="12" ry="5" fill="#fff8ef" stroke="#c99bb0" strokeWidth=".8" />
-        <ellipse cx="70" cy="74" rx="11" ry="5" fill="#fff8ef" stroke="#c99bb0" strokeWidth=".8" />
-        <path d="M91 54 Q96 57 99 53" fill="none" stroke="#a77c91" strokeWidth="1" strokeLinecap="round" />
-        <circle cx="99" cy="55" r="2" fill="#f0bfd0" opacity=".8" />
-      </g>
-    </svg>
+      {['bunny-one','bunny-two','bunny-three','bunny-four','bunny-five'].map((name) => <div className={`loader-bunny ${name}`} key={name}>
+        <div className="bunny-ground-shadow" />
+        <div className="bunny-3d">
+          <span className="bunny-ear ear-back"><i /></span><span className="bunny-ear ear-front"><i /></span>
+          <span className="bunny-tail" />
+          <span className="bunny-torso"><i className="bunny-belly" /></span>
+          <span className="bunny-head"><i className="bunny-eye" /><i className="bunny-cheek" /><i className="bunny-nose" /><i className="bunny-mouth" /></span>
+          <span className="bunny-paw paw-back" /><span className="bunny-paw paw-front" />
+          <span className="bunny-bow"><i /><b /></span>
+        </div>
+      </div>)}
     </div>
-    <span className="loader-deco deco-left">୨୧</span><span className="loader-deco deco-right">✧</span>
-    <span className="loader-heart loader-heart-a">♡</span><span className="loader-heart loader-heart-b">♥</span>
-    <span className="loader-heart loader-heart-c">✦</span><span className="loader-heart loader-heart-d">♡</span>
     <section className="loader-card">
       <div className="loader-ribbon">A LITTLE PLACE OF MAGIC</div>
       <div className="loader-emblem"><span className="emblem-orbit orbit-one" /><span className="emblem-orbit orbit-two" /><span className="emblem-flower">✿</span><span className="emblem-bow">୨୧</span></div>
