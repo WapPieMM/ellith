@@ -165,3 +165,57 @@
  .loading-screen .bunny-four{--bunny-lane:88%}
  .loading-screen .bunny-five{--bunny-lane:51%}
 }
+
+
+/* FINAL FIX: pin every bunny inside the intro viewport.
+   The previous horizontal travel animation could leave all five off-screen
+   during the five-second intro, especially with negative animation delays. */
+.loading-screen .loader-bunnies{
+  position:absolute!important;
+  inset:0!important;
+  z-index:8!important;
+  display:block!important;
+  overflow:hidden!important;
+  visibility:visible!important;
+  pointer-events:none!important;
+}
+.loading-screen .loader-bunny{
+  position:absolute!important;
+  left:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  display:block!important;
+  width:124px!important;
+  height:116px!important;
+  opacity:1!important;
+  visibility:visible!important;
+  animation:none!important;
+  transform:none!important;
+  filter:drop-shadow(0 8px 10px #8f647b55)!important;
+}
+.loading-screen .bunny-one{left:2%!important;top:12%!important}
+.loading-screen .bunny-two{right:2%!important;top:13%!important}
+.loading-screen .bunny-three{left:3%!important;bottom:7%!important}
+.loading-screen .bunny-four{right:2%!important;bottom:7%!important}
+.loading-screen .bunny-five{left:calc(50% - 62px)!important;top:3%!important}
+.loading-screen .loader-card{position:relative!important;z-index:3!important}
+.loading-screen .bunny-3d{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  animation:plush-bunny-hop 1.5s ease-in-out infinite!important;
+}
+.loading-screen .bunny-two .bunny-3d{animation-delay:-.35s!important}
+.loading-screen .bunny-three .bunny-3d{animation-delay:-.7s!important}
+.loading-screen .bunny-four .bunny-3d{animation-delay:-1.05s!important}
+.loading-screen .bunny-five .bunny-3d{animation-delay:-.5s!important}
+.loading-screen .bunny-ground-shadow{display:block!important;visibility:visible!important}
+@media(max-width:520px){
+  .loading-screen .loader-bunny{width:104px!important;height:108px!important}
+  .loading-screen .bunny-one{left:-18px!important;top:12%!important}
+  .loading-screen .bunny-two{right:-20px!important;top:13%!important}
+  .loading-screen .bunny-three{left:-20px!important;bottom:5%!important}
+  .loading-screen .bunny-four{right:-20px!important;bottom:5%!important}
+  .loading-screen .bunny-five{left:calc(50% - 52px)!important;top:2%!important}
+}
