@@ -23,3 +23,26 @@
 .tap-burst i:nth-child(3n){color:#b98abf;font-size:18px!important}
 @keyframes tap-pop-strong{0%{opacity:0;transform:translate(-50%,-50%) scale(.1) rotate(-35deg)}16%{opacity:1;transform:translate(-50%,-50%) scale(1.45) rotate(12deg)}100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.65) rotate(48deg)}}
 @keyframes tap-ring-strong{0%{opacity:.95;transform:scale(.2)}100%{opacity:0;transform:scale(5.5)}}
+
+
+/* Delicate white lace trim inspired by the reference image */
+.site-shell{padding-top:190px}
+.site-shell:after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  top:0;left:0;width:100%;
+  height:clamp(108px,15vw,180px);
+  background-image:url('/lace-border.svg');
+  background-repeat:repeat-x;
+  background-position:center top;
+  background-size:100% 100%;
+  opacity:.94;
+  pointer-events:none;
+}
+.profile-card{z-index:1}
+.admin-shortcut{z-index:2}
+@media(max-width:700px){
+  .site-shell{padding-top:150px}
+  .site-shell:after{height:clamp(96px,25vw,142px)}
+}
