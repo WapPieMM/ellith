@@ -204,6 +204,13 @@ export default function App() {
     </section>
   </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite">
     <div className="loading-grain" aria-hidden="true" />
+    <div className="loader-bunnies" aria-hidden="true">
+      <span className="loader-bunny bunny-one">🐇</span>
+      <span className="loader-bunny bunny-two">🐰</span>
+      <span className="loader-bunny bunny-three">🐇</span>
+      <span className="loader-bunny bunny-four">🐰</span>
+      <span className="loader-bunny bunny-five">🐇</span>
+    </div>
     <span className="loader-deco deco-left">୨୧</span><span className="loader-deco deco-right">✧</span>
     <span className="loader-heart loader-heart-a">♡</span><span className="loader-heart loader-heart-b">♥</span>
     <span className="loader-heart loader-heart-c">✦</span><span className="loader-heart loader-heart-d">♡</span>
