@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
-import { Instagram, Facebook, MessageCircle, Plus, Trash2, Pencil, LogOut, ImagePlus, Settings, ExternalLink, Music2, Volume2, VolumeX, Sparkles, Heart, X, Save, Upload, Eye, EyeOff } from 'lucide-react';
+import { Instagram, Facebook, MessageCircle, Plus, Trash2, Pencil, LogOut, ImagePlus, ExternalLink, Music2, Volume2, VolumeX, Sparkles, Heart, X, Save, Upload, Eye, EyeOff } from 'lucide-react';
 
 const starter = {
   name: 'ellith', tagline: 'a little place of magic', bio: 'welcome to my little corner ♡', theme: 'pink',
@@ -161,7 +161,7 @@ export default function App() {
   }
 
   return <><main className={'site-shell theme-'+(site.theme||'pink')} style={site.background_url?{backgroundImage:'linear-gradient(#fff8f3bb,#fff8f3bb),url('+site.background_url+')'}:{}}>
-    <div className="admin-shortcut"><a href="#admin"><Settings size={15}/> ADMIN</a></div>
+    <div className="admin-shortcut"><a href="#admin" aria-label="เปิดหน้า Admin"><Heart size={17} fill="currentColor"/> <span>ADMIN</span></a></div>
     <div className="sparkle s1">✧</div><div className="sparkle s2">✦</div><div className="sparkle s3">✧</div>
     <section className="profile-card">
       <div className="top-ornament">୨୧　✧　୨୧</div>
