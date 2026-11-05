@@ -219,3 +219,11 @@
   .loading-screen .bunny-four{right:-20px!important;bottom:5%!important}
   .loading-screen .bunny-five{left:calc(50% - 52px)!important;top:2%!important}
 }
+
+
+/* Softer faceless plush bunnies — hide the tiny dark eyes */
+.loading-screen .bunny-eye{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
