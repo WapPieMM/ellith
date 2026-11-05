@@ -495,13 +495,12 @@ export default function App() {
   async function login(e) {
     e.preventDefault(); setLoginError('');
     if (!supabase) {
-      setLocalStudioMode(true);
-      showToast('เข้าสู่โหมดจัดการเว็บไซต์เรียบร้อยแล้ว ♡');
+      setLoginError('ระบบเข้าสู่ระบบยังไม่ได้ตั้งค่า กรุณาติดต่อผู้ดูแลเว็บไซต์');
       return;
     }
     const email = username.trim();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setLoginError('เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบอีเมลและรหัสผ่าน หรือเลือกเข้าโหมดแก้ไขด่วนด้านล่าง');
+    if (error) setLoginError('เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบอีเมลและรหัสผ่าน');
   }
   async function logout() {
     await supabase?.auth.signOut();
@@ -978,17 +977,6 @@ export default function App() {
                 {loginError && <p className="error">{loginError}</p>}
                 <button className="primary-btn full" type="submit">เข้าสู่ระบบด้วยบัญชีผู้ดูแล <span>♡</span></button>
               </form>
-              <div className="login-divider"><span>หรือ</span></div>
-              <button
-                type="button"
-                className="soft-btn full studio-quick-btn"
-                onClick={() => {
-                  setLocalStudioMode(true);
-                  showToast('เปิดโหมดแก้ไขเว็บไซต์ด่วนเรียบร้อยแล้ว ♡');
-                }}
-              >
-                <Sparkles size={15} /> เข้าใช้งานโหมดแก้ไขทันที (Quick Studio)
-              </button>
             </div>
           </section>
         ) : (
