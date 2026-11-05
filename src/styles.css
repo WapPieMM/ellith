@@ -51,8 +51,6 @@
 .tap-burst i:nth-child(2n){color:#e0a5bd;font-size:15px}
 @keyframes tap-pop{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-25deg)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.2) rotate(8deg)}100%{opacity:0;transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(.55) rotate(35deg)}}
 @keyframes tap-ring{0%{opacity:.8;transform:scale(.3)}100%{opacity:0;transform:scale(3.8)}}
-@media(prefers-reduced-motion:reduce){.tap-burst{display:none!important}}
-
 /* High-visibility click/tap sparkle burst — deliberately not disabled by OS motion settings */
 .tap-burst{position:fixed!important;z-index:2147483647!important;left:0;top:0;width:1px;height:1px;overflow:visible!important;pointer-events:none!important;contain:none!important}
 .tap-burst:before{content:"";position:absolute;left:-10px;top:-10px;width:20px;height:20px;border:2px solid #d78eae;border-radius:50%;box-shadow:0 0 12px #e9b4ca;animation:tap-ring-strong .8s ease-out forwards}
