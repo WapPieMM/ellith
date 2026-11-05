@@ -186,6 +186,22 @@ export default function App() {
     <div className="admin-shortcut"><a href="#admin" aria-label="เปิดหน้า Admin"><Heart size={17} fill="currentColor"/> <span>ADMIN</span></a></div>
     <div className="sparkle s1">✧</div><div className="sparkle s2">✦</div><div className="sparkle s3">✧</div>
     <section className="profile-card">
+      <div className="cover-frame" aria-label="ภาพปกตกแต่งกรอบลายวินเทจ">
+        {site.cover_url ? <img className="cover-photo" src={site.cover_url} alt="ภาพปกเว็บไซต์" /> : <div className="cover-empty">your little memory ♡</div>}
+        <svg className="cover-ornament" viewBox="0 0 600 900" preserveAspectRatio="none" aria-hidden="true">
+          <defs><filter id="softEmboss"><feGaussianBlur stdDeviation="1.1" /></filter></defs>
+          <g fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="17" y="17" width="566" height="866" rx="18" opacity=".42"/>
+            <path d="M28 180 C28 135 47 115 79 104 C43 89 39 53 72 32 C96 16 126 29 137 56 C150 27 180 25 198 45 C215 65 198 89 173 94 C207 105 225 91 248 76 M35 145 C64 148 78 132 82 111 C99 130 120 134 139 116 C155 100 147 79 131 70 C115 61 96 68 92 84 C89 101 104 111 117 103 M43 177 C65 170 74 155 72 138 M101 34 C91 52 94 65 107 78 M156 37 C145 52 149 68 165 77"/>
+            <path d="M572 180 C572 135 553 115 521 104 C557 89 561 53 528 32 C504 16 474 29 463 56 C450 27 420 25 402 45 C385 65 402 89 427 94 C393 105 375 91 352 76 M565 145 C536 148 522 132 518 111 C501 130 480 134 461 116 C445 100 453 79 469 70 C485 61 504 68 508 84 C511 101 496 111 483 103 M557 177 C535 170 526 155 528 138 M499 34 C509 52 506 65 493 78 M444 37 C455 52 451 68 435 77"/>
+            <path d="M28 720 C28 765 47 785 79 796 C43 811 39 847 72 868 C96 884 126 871 137 844 C150 873 180 875 198 855 C215 835 198 811 173 806 C207 795 225 809 248 824 M35 755 C64 752 78 768 82 789 C99 770 120 766 139 784 C155 800 147 821 131 830 C115 839 96 832 92 816 C89 799 104 789 117 797 M43 723 C65 730 74 745 72 762 M101 866 C91 848 94 835 107 822 M156 863 C145 848 149 832 165 823"/>
+            <path d="M572 720 C572 765 553 785 521 796 C557 811 561 847 528 868 C504 884 474 871 463 844 C450 873 420 875 402 855 C385 835 402 811 427 806 C393 795 375 809 352 824 M565 755 C536 752 522 768 518 789 C501 770 480 766 461 784 C445 800 453 821 469 830 C485 839 504 832 508 816 C511 799 496 789 483 797 M557 723 C535 730 526 745 528 762 M499 866 C509 848 506 835 493 822 M444 863 C455 848 451 832 435 823"/>
+            <path d="M300 430 C267 389 214 393 202 434 C190 477 245 520 300 562 C355 520 410 477 398 434 C386 393 333 389 300 430Z" opacity=".72"/>
+            <path d="M202 436 C166 411 130 392 91 389 C132 421 153 452 175 484 C137 466 108 463 72 468 C119 493 149 526 183 562 C145 551 117 556 89 570 C141 584 176 616 211 655 C185 614 168 575 158 538 C191 567 220 592 249 607 M398 436 C434 411 470 392 509 389 C468 421 447 452 425 484 C463 466 492 463 528 468 C481 493 451 526 417 562 C455 551 483 556 511 570 C459 584 424 616 389 655 C415 614 432 575 442 538 C409 567 380 592 351 607" opacity=".7"/>
+            <path d="M189 440 C165 432 143 415 127 396 M177 462 C147 451 125 439 104 420 M166 491 C137 481 114 471 91 452 M183 526 C152 515 130 502 109 485 M204 563 C174 551 153 537 132 520 M411 440 C435 432 457 415 473 396 M423 462 C453 451 475 439 496 420 M434 491 C463 481 486 471 509 452 M417 526 C448 515 470 502 491 485 M396 563 C426 551 447 537 468 520" opacity=".48"/>
+          </g>
+        </svg>
+      </div>
       <div className="top-ornament">୨୧　✧　୨୧</div>
       <div className="avatar-frame">{site.avatar_url?<img src={site.avatar_url} alt={site.name}/>:<div className="avatar-placeholder">♡</div>}<span className="avatar-star">✦</span></div>
       <p className="eyebrow">WELCOME TO MY LITTLE WORLD</p><h1>{site.name || 'ellith'}</h1><p className="tagline">{site.tagline || 'a little place of magic'}</p><div className="divider-ornament"><span>✧</span><i></i><span>♡</span><i></i><span>✧</span></div><p className="bio">{site.bio || 'welcome to my little corner ♡'}</p>
