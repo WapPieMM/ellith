@@ -39,6 +39,26 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [showIntro]);
 
+  // Tiny coquette sparkles on every pointer interaction (mouse, pen, or touch).
+  useEffect(() => {
+    const symbols = ['♡', '✧', '♥', '୨୧', '✦'];
+    const onPointerDown = (event) => {
+      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+      const particle = document.createElement('span');
+      particle.className = 'touch-sparkle';
+      particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      particle.setAttribute('aria-hidden', 'true');
+      particle.style.left = event.clientX + 'px';
+      particle.style.top = event.clientY + 'px';
+      particle.style.setProperty('--drift-x', (Math.random() * 64 - 32) + 'px');
+      particle.style.setProperty('--drift-y', (-42 - Math.random() * 42) + 'px');
+      document.body.appendChild(particle);
+      window.setTimeout(() => particle.remove(), 950);
+    };
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    return () => window.removeEventListener('pointerdown', onPointerDown);
+  }, []);
+
   useEffect(() => {
     const onHash = () => setPage(location.hash === '#admin' ? 'admin' : 'home');
     window.addEventListener('hashchange', onHash);
