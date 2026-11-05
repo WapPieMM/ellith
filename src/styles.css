@@ -227,3 +227,11 @@
   opacity:0!important;
   visibility:hidden!important;
 }
+
+
+/* Remove the pink cheek blush from every loading bunny */
+.loading-screen .bunny-cheek{
+  display:none!important;
+  opacity:0!important;
+  visibility:hidden!important;
+}
