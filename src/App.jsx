@@ -16,7 +16,6 @@ const emptyLink = { label: '', url: '', icon: 'link', note: '' };
 
 export default function App() {
   const [page, setPage] = useState(location.hash === '#admin' ? 'admin' : 'home');
-  const [showIntro, setShowIntro] = useState(location.hash !== '#admin');
   const [site, setSite] = useState(starter);
   const [links, setLinks] = useState(demoLinks);
   const [assets, setAssets] = useState([]);
@@ -32,12 +31,6 @@ export default function App() {
   const [musicOn, setMusicOn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    if (!showIntro) return;
-    const timer = window.setTimeout(() => setShowIntro(false), 5000);
-    return () => window.clearTimeout(timer);
-  }, [showIntro]);
 
   // Strong, visible sparkle burst for mouse clicks and touchscreen taps.
   useEffect(() => {
@@ -202,47 +195,5 @@ export default function App() {
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
-  </main>{showIntro && <div className="loading-screen loading-screen-new" role="status" aria-live="polite">
-    <div className="loading-glow loading-glow-peach" aria-hidden="true" />
-    <div className="loading-glow loading-glow-lavender" aria-hidden="true" />
-    <section className="loader-glass-card">
-      <div className="loader-bunny-scene" aria-hidden="true">
-        <div className="loader-bunny-shadow" />
-        <svg className="loader-bunny-svg" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="ellithFur" cx="32%" cy="22%" r="78%">
-              <stop offset="0" stopColor="#ffffff" />
-              <stop offset=".62" stopColor="#fffafd" />
-              <stop offset="1" stopColor="#e7dce9" />
-            </radialGradient>
-            <linearGradient id="ellithEar" x1="0" y1="0" x2="1" y2="1">
-              <stop stopColor="#f5dce3" />
-              <stop offset="1" stopColor="#e8c5d8" />
-            </linearGradient>
-          </defs>
-          <g className="loader-bunny-ears">
-            <g className="loader-bunny-ear-left">
-              <ellipse cx="87" cy="59" rx="20" ry="55" transform="rotate(-12 87 59)" fill="url(#ellithFur)" />
-              <ellipse cx="87" cy="59" rx="9" ry="40" transform="rotate(-12 87 59)" fill="url(#ellithEar)" />
-            </g>
-            <g className="loader-bunny-ear-right">
-              <ellipse cx="145" cy="55" rx="20" ry="57" transform="rotate(12 145 55)" fill="url(#ellithFur)" />
-              <ellipse cx="145" cy="55" rx="9" ry="42" transform="rotate(12 145 55)" fill="url(#ellithEar)" />
-            </g>
-          </g>
-          <g className="loader-bunny-body">
-            <ellipse cx="117" cy="151" rx="62" ry="45" fill="url(#ellithFur)" />
-            <ellipse cx="177" cy="155" rx="19" ry="18" fill="url(#ellithFur)" />
-            <ellipse cx="84" cy="180" rx="24" ry="12" fill="#fffafd" />
-            <ellipse cx="151" cy="180" rx="24" ry="12" fill="#f8f2f8" />
-            <circle cx="119" cy="101" r="47" fill="url(#ellithFur)" />
-            <ellipse cx="119" cy="114" rx="12" ry="8" fill="#fff7fb" />
-            <path d="M115 111 Q119 107 123 111 Q119 116 115 111Z" fill="#c993ad" />
-            <path d="M119 116 Q115 122 111 119 M119 116 Q123 122 127 119" fill="none" stroke="#aa8799" strokeWidth="1.8" strokeLinecap="round" />
-          </g>
-        </svg>
-      </div>
-      <p className="loader-loading-message">Loading your sweet experience...</p>
-    </section>
-  </div>}</>;
+  </main>}</>;
 }
