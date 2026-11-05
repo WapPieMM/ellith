@@ -124,3 +124,44 @@
 .loading-track i{animation-duration:5s}
 @media(max-width:520px){.loader-bunny{width:84px;height:100px}.bunny-one{--bunny-lane:10%}.bunny-two{--bunny-lane:25%}.bunny-three{--bunny-lane:73%}.bunny-four{--bunny-lane:88%}.bunny-five{--bunny-lane:53%}}
 @media(prefers-reduced-motion:reduce){.bunny-3d,.bunny-ground-shadow{animation:none!important}}
+
+
+/* Visibility fix: keep the plush bunnies in front of the intro card */
+.loading-screen .loader-bunnies{
+  position:absolute!important;
+  inset:0!important;
+  z-index:6!important;
+  display:block!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+  visibility:visible!important;
+}
+.loading-screen .loader-bunny{
+  position:absolute!important;
+  display:block!important;
+  visibility:visible!important;
+  z-index:7!important;
+  width:clamp(96px,11vw,138px)!important;
+  height:116px!important;
+  opacity:1!important;
+  left:-150px!important;
+  filter:drop-shadow(0 8px 10px #8f647b55)!important;
+}
+.loading-screen .bunny-3d{display:block!important;visibility:visible!important;opacity:1!important}
+.loading-screen .bunny-torso,.loading-screen .bunny-head,.loading-screen .bunny-ear,
+.loading-screen .bunny-tail,.loading-screen .bunny-paw{display:block!important;visibility:visible!important}
+.loading-screen .bunny-one{--bunny-lane:8%;--bunny-speed:18s;--bunny-delay:-2s}
+.loading-screen .bunny-two{--bunny-lane:25%;--bunny-speed:21s;--bunny-delay:-9s}
+.loading-screen .bunny-three{--bunny-lane:73%;--bunny-speed:19s;--bunny-delay:-6s}
+.loading-screen .bunny-four{--bunny-lane:87%;--bunny-speed:23s;--bunny-delay:-15s}
+.loading-screen .bunny-five{--bunny-lane:48%;--bunny-speed:26s;--bunny-delay:-19s}
+.loading-screen .loader-card{z-index:3!important}
+.loading-screen .loader-bottom{z-index:2}
+@media(max-width:520px){
+ .loading-screen .loader-bunny{width:88px!important;height:104px!important}
+ .loading-screen .bunny-one{--bunny-lane:7%}
+ .loading-screen .bunny-two{--bunny-lane:23%}
+ .loading-screen .bunny-three{--bunny-lane:75%}
+ .loading-screen .bunny-four{--bunny-lane:88%}
+ .loading-screen .bunny-five{--bunny-lane:51%}
+}
