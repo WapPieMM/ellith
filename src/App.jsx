@@ -262,7 +262,7 @@ export default function App() {
     </main>;
   }
 
-  return <><main className={'site-shell theme-'+(site.theme||'pink')} style={site.background_url?{backgroundImage:'linear-gradient(#fff8f3bb,#fff8f3bb),url('+site.background_url+')'}:{}}>
+  return <><main className={'site-shell theme-'+(site.theme||'pink')} style={site.background_url?{backgroundImage:'linear-gradient(#fff8fbd9,#fff8fbd9),url('+site.background_url+')'}:{}}>
     <div className="admin-shortcut"><a href="#admin" aria-label="เปิดหน้า Admin"><Heart size={17} fill="currentColor"/> <span>ADMIN</span></a></div>
     <div className="sparkle s1">✧</div><div className="sparkle s2">✦</div><div className="sparkle s3">✧</div>
     <section className="profile-card">
