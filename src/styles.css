@@ -59,3 +59,85 @@
 .asset-actions button{border:1px solid #efd9e3;border-radius:7px;background:#fff8fb;color:#a87991;padding:6px 7px;font-size:10px;cursor:pointer;transition:background .2s,border-color .2s}
 .asset-actions button:hover{background:#fbeaf1;border-color:#dcaac0}
 .asset-actions button:focus-visible{outline:2px solid #c98ba7;outline-offset:2px}
+
+
+/* Coquette dreamy angel-wing profile frame */
+.angel-avatar-wrap{
+  width:min(100%,330px);
+  height:174px;
+  margin:0 auto 18px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  isolation:isolate;
+}
+.angel-avatar-wrap:before{
+  content:"";
+  position:absolute;
+  width:174px;height:174px;border-radius:50%;
+  background:radial-gradient(circle,#fff9fc 0 43%,#fbe8f1 60%,#f4d7e5 72%,transparent 73%);
+  filter:drop-shadow(0 5px 16px #d9a2bb55);
+  z-index:-1;
+}
+.angel-wing{
+  position:absolute;
+  top:43px;
+  width:130px;height:100px;
+  z-index:0;
+  pointer-events:none;
+}
+.angel-wing-left{right:calc(50% + 36px);transform:rotate(-8deg)}
+.angel-wing-right{left:calc(50% + 36px);transform:scaleX(-1) rotate(-8deg)}
+.angel-wing i{
+  position:absolute;display:block;
+  width:82px;height:23px;
+  border-radius:100% 12% 100% 14%;
+  background:linear-gradient(180deg,#fff 0%,#fff9fc 42%,#f2d6e4 100%);
+  border:1px solid #f1d9e5;
+  box-shadow:0 3px 8px #d9a4bc30,inset 0 2px 3px #fff;
+  transform-origin:100% 50%;
+}
+.angel-wing i:nth-child(1){top:0;right:0;width:72px;transform:rotate(-34deg)}
+.angel-wing i:nth-child(2){top:17px;right:9px;width:88px;transform:rotate(-19deg)}
+.angel-wing i:nth-child(3){top:37px;right:13px;width:96px;transform:rotate(-5deg)}
+.angel-wing i:nth-child(4){top:56px;right:12px;width:88px;transform:rotate(10deg)}
+.angel-wing i:nth-child(5){top:72px;right:3px;width:73px;transform:rotate(23deg)}
+.angel-wing i:nth-child(6){top:83px;right:21px;width:56px;height:18px;transform:rotate(34deg)}
+.angel-avatar-wrap .avatar-frame{
+  width:116px;height:116px;flex:0 0 116px;
+  margin:0;z-index:2;
+  padding:5px;
+  border:2px solid #f0c9da;
+  outline:5px solid #fff9fc;
+  outline-offset:-9px;
+  box-shadow:0 0 0 1px #e6b4ca,0 7px 22px #c98cae55;
+  background:linear-gradient(145deg,#fff,#fceaf2);
+}
+.angel-avatar-wrap .avatar-frame img{border:2px solid #fff;border-radius:50%}
+.angel-avatar-wrap .avatar-star{right:-7px;bottom:7px;text-shadow:0 1px 6px #fff;font-size:22px}
+.angel-halo{
+  position:absolute;top:2px;left:50%;transform:translateX(-50%);
+  color:#d9a2bb;font:24px Georgia,serif;
+  text-shadow:0 0 12px #e9c4d5;
+  z-index:3;
+}
+.angel-bow{
+  position:absolute;top:5px;left:50%;transform:translateX(-50%);
+  z-index:4;color:#c985a5;text-align:center;
+  filter:drop-shadow(0 2px 3px #d9a5bc66);
+}
+.angel-bow span{display:block;font:36px Georgia,serif;line-height:1}
+.angel-bow b{
+  position:absolute;left:50%;top:11px;transform:translateX(-50%);
+  font:13px Georgia,serif;color:#fff;text-shadow:0 1px 3px #c77f9e;
+}
+@media(max-width:480px){
+  .angel-avatar-wrap{width:min(100%,300px);height:158px}
+  .angel-avatar-wrap:before{width:156px;height:156px}
+  .angel-wing{transform:scale(.86) rotate(-8deg);top:38px}
+  .angel-wing-left{right:calc(50% + 31px)}
+  .angel-wing-right{left:calc(50% + 31px);transform:scaleX(-1) scale(.86) rotate(-8deg)}
+  .angel-avatar-wrap .avatar-frame{width:106px;height:106px;flex-basis:106px}
+  .angel-bow{top:3px}
+}
