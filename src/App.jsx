@@ -268,7 +268,13 @@ export default function App() {
     <section className="profile-card">
       {site.cover_url && <div className="profile-cover"><img src={site.cover_url} alt={(site.name || 'Profile') + ' cover'} /></div>}
       <div className="top-ornament">୨୧　✧　୨୧</div>
-      <div className="avatar-frame">{site.avatar_url?<img src={site.avatar_url} alt={site.name}/>:<div className="avatar-placeholder">♡</div>}<span className="avatar-star">✦</span></div>
+      <div className="angel-avatar-wrap" aria-label="Angel wing profile frame">
+        <div className="angel-wing angel-wing-left" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>
+        <div className="angel-wing angel-wing-right" aria-hidden="true"><i/><i/><i/><i/><i/><i/></div>
+        <div className="angel-halo" aria-hidden="true">✧</div>
+        <div className="avatar-frame">{site.avatar_url?<img src={site.avatar_url} alt={site.name}/>:<div className="avatar-placeholder">♡</div>}<span className="avatar-star">✦</span></div>
+        <div className="angel-bow" aria-hidden="true"><span>୨୧</span><b>♡</b></div>
+      </div>
       <p className="eyebrow">WELCOME TO MY LITTLE WORLD</p><h1>{site.name || 'ellith'}</h1><p className="tagline">{site.tagline || 'a little place of magic'}</p><div className="divider-ornament"><span>✧</span><i></i><span>♡</span><i></i><span>✧</span></div><p className="bio">{site.bio || 'welcome to my little corner ♡'}</p>
       <div className="contact-list">{publicLinks.map((link,i)=><a className="contact-link" href={link.url} target="_blank" rel="noreferrer" key={link.id}><span className="contact-icon">{iconFor(link.label)}</span><span className="contact-copy"><b>{link.label}</b><small>{link.note || 'connect with me'}</small></span><ExternalLink className="external-icon"/><span className="link-number">0{i+1}</span></a>)}</div>
       {!publicLinks.length&&<p className="muted">ช่องทางการติดต่อจะปรากฏที่นี่ ♡</p>}
