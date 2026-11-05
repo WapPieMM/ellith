@@ -195,5 +195,5 @@ export default function App() {
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
-  </main>}</>;
+  </main></>;
 }
