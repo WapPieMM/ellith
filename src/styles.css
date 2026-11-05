@@ -34,3 +34,11 @@
   box-shadow:none;
   backdrop-filter:none;
 }
+
+/* Delicate antique engraving frame for the uploaded cover image */
+.cover-frame{width:min(100%,360px);aspect-ratio:2/3;position:relative;margin:0 auto 28px;padding:22px;isolation:isolate;color:#d8d5d3;filter:drop-shadow(0 5px 9px #bbaeb322)}
+.cover-photo,.cover-empty{position:absolute;inset:28px;width:calc(100% - 56px);height:calc(100% - 56px);object-fit:cover;object-position:center;border-radius:2px}
+.cover-empty{display:grid;place-items:center;background:linear-gradient(145deg,#fffdfd,#f8f1f4);color:#c6a8b6;font:italic 14px 'Playfair Display',serif;letter-spacing:1px}
+.cover-ornament{position:absolute;inset:0;width:100%;height:100%;z-index:2;overflow:visible;pointer-events:none;color:#d4d0d0;opacity:.9;filter:drop-shadow(0 1px 1px #fff)}
+.cover-frame:after{content:"";position:absolute;inset:26px;border:1px solid #ded9da;opacity:.5;pointer-events:none;z-index:1}
+@media(max-width:700px){.cover-frame{width:min(100%,320px);margin-bottom:24px}}
