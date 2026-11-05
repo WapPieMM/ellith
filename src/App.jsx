@@ -121,16 +121,72 @@ export default function App() {
     if (error) setNotice(error.message); else { await refresh(); setNotice('ลบช่องทางแล้ว'); }
   }
   async function uploadImage(e, field) {
-    const file = e.target.files?.[0]; if (!file || !supabase) return;
-    if (!file.type.startsWith('image/')) { setNotice('กรุณาเลือกไฟล์รูปภาพ'); return; }
-    const ext = file.name.split('.').pop();
+    const file = e.target.files?.[0];
+    if (!file || !supabase) return;
+    if (!file.type.startsWith('image/')) {
+      setNotice('กรุณาเลือกไฟล์รูปภาพ');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setNotice('รูปภาพต้องมีขนาดไม่เกิน 10 MB');
+      e.target.value = '';
+      return;
+    }
+
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
     const path = 'ellith/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
-    const { error } = await supabase.storage.from('ellith-media').upload(path, file, { upsert: false });
-    if (error) { setNotice(error.message); return; }
+    const { error: uploadError } = await supabase.storage.from('ellith-media').upload(path, file, { upsert: false });
+    if (uploadError) {
+      setNotice('อัปโหลดรูปภาพไม่สำเร็จ: ' + uploadError.message);
+      e.target.value = '';
+      return;
+    }
+
     const { data } = supabase.storage.from('ellith-media').getPublicUrl(path);
-    setSite(s => ({ ...s, [field]: data.publicUrl }));
-    await supabase.from('media_assets').insert({ name: file.name, path, url: data.publicUrl, kind: field });
-    await refresh(); setNotice('อัปโหลดรูปภาพแล้ว อย่าลืมกดบันทึกเว็บไซต์');
+    const nextSite = { ...site, [field]: data.publicUrl };
+    const payload = {
+      id: 1,
+      name: nextSite.name,
+      tagline: nextSite.tagline,
+      bio: nextSite.bio,
+      theme: nextSite.theme,
+      avatar_url: nextSite.avatar_url,
+      cover_url: nextSite.cover_url,
+      background_url: nextSite.background_url,
+      music_url: nextSite.music_url,
+      updated_at: new Date().toISOString()
+    };
+
+    // Save the selected URL immediately. Do not call refresh() here:
+    // refresh() reloads the old site_content row and used to overwrite this URL.
+    const { error: saveError } = await supabase.from('site_content').upsert(payload);
+    if (saveError) {
+      await supabase.storage.from('ellith-media').remove([path]);
+      setNotice('อัปโหลดไฟล์แล้ว แต่บันทึกเว็บไซต์ไม่สำเร็จ: ' + saveError.message);
+      e.target.value = '';
+      return;
+    }
+
+    setSite(nextSite);
+    const { error: assetError } = await supabase.from('media_assets').insert({
+      name: file.name,
+      path,
+      url: data.publicUrl,
+      kind: field
+    });
+    const { data: assetRows, error: assetsError } = await supabase
+      .from('media_assets')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (assetRows) setAssets(assetRows);
+
+    if (assetError || assetsError) {
+      setNotice('บันทึกรูปภาพบนเว็บไซต์แล้ว แต่มีปัญหาในการอัปเดตคลังรูปภาพ');
+    } else {
+      setNotice('อัปโหลดและบันทึกรูปภาพเรียบร้อยแล้ว หน้าเว็บไซต์จะแสดงรูปใหม่นี้ทันที ♡');
+    }
+    e.target.value = '';
   }
   async function uploadMusic(e) {
     const file = e.target.files?.[0];
@@ -186,6 +242,7 @@ export default function App() {
     <div className="admin-shortcut"><a href="#admin" aria-label="เปิดหน้า Admin"><Heart size={17} fill="currentColor"/> <span>ADMIN</span></a></div>
     <div className="sparkle s1">✧</div><div className="sparkle s2">✦</div><div className="sparkle s3">✧</div>
     <section className="profile-card">
+      {site.cover_url && <div className="profile-cover"><img src={site.cover_url} alt={(site.name || 'Profile') + ' cover'} /></div>}
       <div className="top-ornament">୨୧　✧　୨୧</div>
       <div className="avatar-frame">{site.avatar_url?<img src={site.avatar_url} alt={site.name}/>:<div className="avatar-placeholder">♡</div>}<span className="avatar-star">✦</span></div>
       <p className="eyebrow">WELCOME TO MY LITTLE WORLD</p><h1>{site.name || 'ellith'}</h1><p className="tagline">{site.tagline || 'a little place of magic'}</p><div className="divider-ornament"><span>✧</span><i></i><span>♡</span><i></i><span>✧</span></div><p className="bio">{site.bio || 'welcome to my little corner ♡'}</p>
