@@ -137,6 +137,7 @@ export default function App() {
       {!publicLinks.length&&<p className="muted">ช่องทางการติดต่อจะปรากฏที่นี่ ♡</p>}
       <div className="music-control">{site.music_url&&<audio id="bg-music" src={site.music_url} loop/>}<button onClick={()=>{const audio=document.getElementById('bg-music');if(!audio)return;if(musicOn){audio.pause();setMusicOn(false)}else{audio.play().then(()=>setMusicOn(true)).catch(()=>setNotice('ไม่สามารถเล่นเพลงได้'))}}}><span>{musicOn?<Volume2/>:<VolumeX/>}</span>{musicOn?'MUSIC ON':'MUSIC OFF'}</button><span className="music-note">♪ ♫ ♪</span></div>
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
-    </section><p className="bottom-note">♡ thank you for visiting ♡</p>
+      <p className="bottom-note">♡ thank you for visiting ♡</p>
+    </section>
   </main>;
 }
