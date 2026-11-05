@@ -202,30 +202,43 @@ export default function App() {
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
-  </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite">
-    <div className="loading-grain" aria-hidden="true" />
-    <div className="loader-bunnies" aria-hidden="true">
-      {['bunny-one','bunny-two','bunny-three','bunny-four','bunny-five'].map((name) => <div className={`loader-bunny ${name}`} key={name}>
-        <div className="bunny-ground-shadow" />
-        <div className="bunny-3d">
-          <span className="bunny-ear ear-back"><i /></span><span className="bunny-ear ear-front"><i /></span>
-          <span className="bunny-tail" />
-          <span className="bunny-torso"><i className="bunny-belly" /></span>
-          <span className="bunny-head"><i className="bunny-eye" /><i className="bunny-cheek" /><i className="bunny-nose" /><i className="bunny-mouth" /></span>
-          <span className="bunny-paw paw-back" /><span className="bunny-paw paw-front" />
-          <span className="bunny-bow"><i /><b /></span>
-        </div>
-      </div>)}
-    </div>
-    <section className="loader-card">
-      <div className="loader-ribbon">A LITTLE PLACE OF MAGIC</div>
-      <div className="loader-emblem"><span className="emblem-orbit orbit-one" /><span className="emblem-orbit orbit-two" /><span className="emblem-flower">✿</span><span className="emblem-bow">୨୧</span></div>
-      <p className="loader-kicker">WELCOME TO</p><p className="loading-brand">ellith</p>
-      <div className="loader-divider"><i />♡<i /></div>
-      <p className="loading-message">opening a little world of dreams...</p>
+  </main>{showIntro && <div className="loading-screen loading-screen-new" role="status" aria-live="polite">
+    <div className="loading-glow loading-glow-one" aria-hidden="true" />
+    <div className="loading-glow loading-glow-two" aria-hidden="true" />
+    <section className="loader-showcase">
+      <p className="loader-kicker">A LITTLE PLACE OF MAGIC</p>
+      <div className="loader-bunny-single" aria-hidden="true">
+        <div className="single-bunny-shadow" />
+        <svg className="single-bunny-svg" viewBox="0 0 240 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="bunnyFur" cx="34%" cy="24%" r="78%"><stop offset="0" stopColor="#fff" /><stop offset=".58" stopColor="#fffafd" /><stop offset="1" stopColor="#e8dce8" /></radialGradient>
+            <linearGradient id="bunnyEar" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f7dce8" /><stop offset="1" stopColor="#e8b8cf" /></linearGradient>
+            <filter id="bunnySoftShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="5" /></filter>
+          </defs>
+          <g className="single-bunny-ears">
+            <ellipse cx="91" cy="57" rx="22" ry="55" transform="rotate(-13 91 57)" fill="url(#bunnyFur)" />
+            <ellipse cx="91" cy="57" rx="10" ry="40" transform="rotate(-13 91 57)" fill="url(#bunnyEar)" />
+            <ellipse cx="145" cy="53" rx="22" ry="57" transform="rotate(13 145 53)" fill="url(#bunnyFur)" />
+            <ellipse cx="145" cy="53" rx="10" ry="41" transform="rotate(13 145 53)" fill="url(#bunnyEar)" />
+          </g>
+          <ellipse cx="66" cy="135" rx="17" ry="17" fill="url(#bunnyFur)" />
+          <ellipse cx="117" cy="139" rx="66" ry="54" fill="url(#bunnyFur)" />
+          <ellipse cx="169" cy="164" rx="23" ry="13" fill="#fffafd" />
+          <ellipse cx="91" cy="178" rx="24" ry="13" fill="#f8f0f6" />
+          <g className="single-bunny-head">
+            <circle cx="119" cy="99" r="49" fill="url(#bunnyFur)" />
+            <ellipse cx="103" cy="112" rx="9" ry="5" fill="#f3c6d8" opacity=".75" />
+            <ellipse cx="135" cy="112" rx="9" ry="5" fill="#f3c6d8" opacity=".75" />
+            <path d="M115 111 Q119 116 123 111 Q119 107 115 111" fill="#cf91ae" />
+            <path d="M119 116 Q115 122 110 119 M119 116 Q123 122 128 119" fill="none" stroke="#ad879b" strokeWidth="2" strokeLinecap="round" />
+          </g>
+          <ellipse cx="188" cy="137" rx="14" ry="14" fill="url(#bunnyFur)" />
+        </svg>
+      </div>
+      <p className="loading-brand">ellith</p>
+      <p className="loading-message">Loading your sweet experience...</p>
       <div className="loading-track"><i /></div>
-      <div className="loader-foot"><span>♡</span> PLEASE WAIT A MOMENT <span>♡</span></div>
+      <p className="loader-bottom">made with love & daydreams</p>
     </section>
-    <p className="loader-bottom">made with love & daydreams</p>
   </div>}</>;
 }
