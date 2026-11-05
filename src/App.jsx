@@ -173,5 +173,5 @@ export default function App() {
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
-  </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite"><div className="loading-orbit"><span>✿</span></div><p className="loading-brand">ellith</p><p className="loading-message">กำลังโหลดความมหัศจรรย์...</p><div className="loading-track"><i /></div><span className="loading-sparkles">✧　♡　✧</span></div>}</>;
+  </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite"><span className="loading-heart heart-one">♡</span><span className="loading-heart heart-two">♥</span><span className="loading-heart heart-three">♡</span><span className="loading-heart heart-four">✧</span><div className="loading-orbit"><span>✿</span></div><p className="loading-brand">ellith</p><p className="loading-message">กำลังโหลดความมหัศจรรย์...</p><div className="loading-track"><i /></div><span className="loading-sparkles">✧　♡　✧</span></div>}</>;
 }
