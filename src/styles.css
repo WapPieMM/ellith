@@ -82,3 +82,45 @@
 @keyframes bunny-shadow{0%,100%{transform:scaleX(1);opacity:.23}35%{transform:scaleX(.72);opacity:.12}70%{transform:scaleX(1.08);opacity:.28}}
 @media(max-width:520px){.loader-bunny{width:76px}.bunny-one{--bunny-lane:10%}.bunny-two{--bunny-lane:24%}.bunny-three{--bunny-lane:73%}.bunny-four{--bunny-lane:88%}.bunny-five{--bunny-lane:52%}}
 @media(prefers-reduced-motion:reduce){.loader-bunny{animation:none;left:auto;right:6%;top:12%}.bunny-two{right:12%;top:83%}.bunny-three{right:78%;top:78%}.bunny-four{right:80%;top:15%}.bunny-five{display:none}.bunny-body,.bunny-ears,.bunny-shadow{animation:none}}
+
+
+/* Plush 3D bunnies — softly lit, rounded forms with real layered depth */
+.loader-bunnies{z-index:1;perspective:900px;overflow:hidden}
+.loader-bunny{left:-170px;top:var(--bunny-lane);width:clamp(88px,10vw,126px);height:112px;opacity:1;filter:none;animation:bunny-wander var(--bunny-speed) cubic-bezier(.42,0,.58,1) var(--bunny-delay) infinite}
+.bunny-one{--bunny-lane:13%;--bunny-speed:19s;--bunny-delay:-4s}
+.bunny-two{--bunny-lane:31%;--bunny-speed:23s;--bunny-delay:-13s;width:clamp(96px,11vw,136px)}
+.bunny-three{--bunny-lane:68%;--bunny-speed:20s;--bunny-delay:-8s}
+.bunny-four{--bunny-lane:84%;--bunny-speed:25s;--bunny-delay:-18s;width:clamp(82px,8vw,108px)}
+.bunny-five{--bunny-lane:49%;--bunny-speed:27s;--bunny-delay:-21s;width:clamp(76px,7vw,96px);opacity:.9}
+.bunny-3d{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateY(-13deg) rotateX(2deg);animation:plush-bunny-hop 1.35s ease-in-out infinite;filter:drop-shadow(0 10px 9px #98748730)}
+.bunny-two .bunny-3d{animation-delay:-.42s}
+.bunny-three .bunny-3d{animation-delay:-.8s}
+.bunny-four .bunny-3d{animation-delay:-.2s}
+.bunny-five .bunny-3d{animation-delay:-1s}
+.bunny-3d span{position:absolute;display:block;box-sizing:border-box}
+.bunny-torso{width:65px;height:48px;left:34px;top:49px;border-radius:48% 48% 45% 48%;background:radial-gradient(ellipse at 34% 22%,#fff 0 12%,#fffafc 30%,#eadde5 72%,#cdbbc8 100%);box-shadow:inset -7px -7px 12px #bdaab955,inset 5px 5px 10px #fff;transform:rotate(-8deg) translateZ(4px)}
+.bunny-belly{position:absolute;width:39px;height:30px;left:9px;top:10px;border-radius:50%;background:radial-gradient(ellipse at 35% 28%,#fff,#f5eaf0 75%);box-shadow:inset -3px -3px 7px #cdbbc733}
+.bunny-head{width:48px;height:46px;left:72px;top:28px;border-radius:48% 48% 46% 48%;background:radial-gradient(circle at 31% 24%,#fff 0 8%,#fffafc 38%,#e9dce5 76%,#c7b5c3 100%);box-shadow:inset -5px -5px 10px #bca9b955,inset 4px 4px 8px #fff;transform:translateZ(12px)}
+.bunny-eye{width:4px;height:5px;left:31px;top:19px;border-radius:50%;background:#55434e;box-shadow:0 0 2px #fff}
+.bunny-cheek{width:10px;height:6px;left:30px;top:27px;border-radius:50%;background:#e8a9bd;filter:blur(2px);opacity:.85}
+.bunny-nose{width:6px;height:5px;left:41px;top:27px;border-radius:60% 60% 65% 65%;background:linear-gradient(145deg,#f4c5d4,#c77f9d);transform:rotate(-15deg)}
+.bunny-mouth{left:42px;top:32px;width:6px;height:4px;border-bottom:1px solid #987181;border-radius:50%}
+.bunny-ear{width:15px;height:43px;top:0;border-radius:70% 70% 48% 48%;background:linear-gradient(100deg,#c8b5c3,#fffafd 28%,#f8edf3 66%,#d7c4d1);box-shadow:inset -3px -2px 5px #bba8b855,inset 2px 2px 5px #fff;transform-origin:bottom center}
+.bunny-ear i{position:absolute;inset:7px 4px 8px;border-radius:60%;background:linear-gradient(90deg,#e7aabe,#f7dbe4);box-shadow:inset 1px 1px 3px #fff8}
+.ear-back{left:80px;transform:rotate(-18deg) translateZ(2px)}
+.ear-front{left:96px;top:3px;height:38px;transform:rotate(12deg) translateZ(15px)}
+.bunny-tail{left:22px;top:58px;width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#f4eaf0 60%,#cbb9c8);box-shadow:inset -3px -3px 6px #bba9b955,0 2px 4px #bba9b944;transform:translateZ(8px)}
+.bunny-paw{width:25px;height:12px;top:83px;border-radius:60% 60% 50% 50%;background:linear-gradient(160deg,#fff,#eee3eb 75%,#cbb9c8);box-shadow:inset -3px -2px 4px #bba9b944,0 2px 2px #c9b4c255}
+.paw-back{left:43px;transform:rotate(-8deg) translateZ(1px)}
+.paw-front{left:80px;transform:rotate(6deg) translateZ(16px)}
+.bunny-bow{left:106px;top:43px;width:17px;height:10px;transform:rotate(12deg) translateZ(20px)}
+.bunny-bow:before,.bunny-bow:after{content:"";position:absolute;top:0;width:9px;height:9px;background:linear-gradient(135deg,#f6cbdc,#d88eae);border-radius:80% 20% 70% 25%;box-shadow:0 2px 3px #b67d9844}
+.bunny-bow:after{right:0;transform:scaleX(-1)}
+.bunny-bow i{position:absolute;z-index:2;left:6px;top:3px;width:5px;height:5px;border-radius:50%;background:#c77e9f}
+.bunny-bow b{display:none}
+.bunny-ground-shadow{position:absolute;left:30px;bottom:3px;width:76px;height:12px;border-radius:50%;background:radial-gradient(ellipse,#987b8e44,transparent 70%);filter:blur(3px);animation:plush-shadow 1.35s ease-in-out infinite}
+@keyframes plush-bunny-hop{0%,100%{transform:translateY(0) rotateY(-13deg) rotateX(2deg) scale(1)}24%{transform:translateY(-13px) rotateY(-8deg) rotateX(0) scale(1.02)}42%{transform:translateY(-18px) rotateY(5deg) rotateX(-2deg) scale(1.01)}63%{transform:translateY(-3px) rotateY(-16deg) rotateX(2deg) scale(.99)}}
+@keyframes plush-shadow{0%,100%{transform:scaleX(1);opacity:.8}35%{transform:scaleX(.72);opacity:.4}65%{transform:scaleX(1.08);opacity:.9}}
+.loading-track i{animation-duration:5s}
+@media(max-width:520px){.loader-bunny{width:84px;height:100px}.bunny-one{--bunny-lane:10%}.bunny-two{--bunny-lane:25%}.bunny-three{--bunny-lane:73%}.bunny-four{--bunny-lane:88%}.bunny-five{--bunny-lane:53%}}
+@media(prefers-reduced-motion:reduce){.bunny-3d,.bunny-ground-shadow{animation:none!important}}
