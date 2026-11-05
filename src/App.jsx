@@ -188,6 +188,30 @@ export default function App() {
     }
     e.target.value = '';
   }
+  async function applyAsset(asset, field) {
+    if (!['avatar_url', 'cover_url', 'background_url'].includes(field)) return;
+    const nextSite = { ...site, [field]: asset.url };
+    const payload = {
+      id: 1,
+      name: nextSite.name,
+      tagline: nextSite.tagline,
+      bio: nextSite.bio,
+      theme: nextSite.theme,
+      avatar_url: nextSite.avatar_url,
+      cover_url: nextSite.cover_url,
+      background_url: nextSite.background_url,
+      music_url: nextSite.music_url,
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await supabase.from('site_content').upsert(payload);
+    if (error) {
+      setNotice('นำรูปไปใช้ไม่สำเร็จ: ' + error.message);
+      return;
+    }
+    setSite(nextSite);
+    setNotice('นำรูปภาพไปใช้บนเว็บไซต์เรียบร้อยแล้ว ♡');
+  }
+
   async function uploadMusic(e) {
     const file = e.target.files?.[0];
     if (!file || !supabase) return;
@@ -233,7 +257,7 @@ export default function App() {
       {notice && <div className="notice">{notice}</div>}
       {tab === 'general' && <form className="panel form-grid" onSubmit={saveSite}><div className="panel-title"><Sparkles /><div><h2>ข้อมูลเว็บไซต์</h2><p>ปรับแต่งหน้าตาและข้อความหน้าแรก</p></div></div><label>ชื่อเว็บไซต์<input value={site.name} onChange={e=>setSite({...site,name:e.target.value})}/></label><label>ข้อความใต้ชื่อ<input value={site.tagline||''} onChange={e=>setSite({...site,tagline:e.target.value})}/></label><label className="wide">ข้อความแนะนำ<textarea rows="3" value={site.bio||''} onChange={e=>setSite({...site,bio:e.target.value})}/></label><label>โทนสี<select value={site.theme||'pink'} onChange={e=>setSite({...site,theme:e.target.value})}><option value="pink">Pink & White</option><option value="lavender">Lavender</option><option value="cream">Cream</option></select></label>{[['avatar_url','รูปโปรไฟล์'],['cover_url','ภาพปก'],['background_url','ภาพพื้นหลัง']].map(([field,label])=><label key={field}>{label}<div className="upload-row"><input value={site[field]||''} onChange={e=>setSite({...site,[field]:e.target.value})} placeholder="URL หรืออัปโหลดไฟล์"/><label className="upload-btn"><Upload/><input type="file" accept="image/*" onChange={e=>uploadImage(e,field)} hidden/></label></div></label>)}<label className="wide">เพลงพื้นหลัง (MP3)<div className="upload-row"><input value={site.music_url||''} onChange={e=>setSite({...site,music_url:e.target.value})} placeholder="วาง URL เพลง หรือเลือกไฟล์ MP3"/><label className="upload-btn" title="เลือกไฟล์เพลง MP3"><Music2/><input type="file" accept=".mp3,audio/mpeg,audio/mp3" onChange={uploadMusic} hidden/></label></div><small className="muted">รองรับไฟล์ MP3 ขนาดไม่เกิน 10 MB หรือวางลิงก์เพลงโดยตรง</small></label><div className="wide"><button className="primary-btn" disabled={saving}><Save/> {saving?'กำลังบันทึก…':'บันทึกการเปลี่ยนแปลง'}</button></div></form>}
       {tab === 'links' && <div className="panel"><div className="panel-title"><Heart/><div><h2>ช่องทางการติดต่อ</h2><p>เพิ่มและแก้ไขลิงก์ที่แสดงบนหน้าเว็บไซต์</p></div></div><form className="link-editor" onSubmit={saveLink}><input required placeholder="ชื่อช่องทาง เช่น Instagram" value={linkForm.label} onChange={e=>setLinkForm({...linkForm,label:e.target.value})}/><input required type="url" placeholder="https://..." value={linkForm.url} onChange={e=>setLinkForm({...linkForm,url:e.target.value})}/><input placeholder="ข้อความสั้น ๆ (ไม่บังคับ)" value={linkForm.note} onChange={e=>setLinkForm({...linkForm,note:e.target.value})}/><div className="editor-actions"><button className="primary-btn"><Plus/> {editing?'บันทึกการแก้ไข':'เพิ่มช่องทาง'}</button>{editing&&<button type="button" className="soft-btn" onClick={()=>{setEditing(null);setLinkForm(emptyLink)}}>ยกเลิก</button>}</div></form><div className="managed-list">{links.map(link=><div className="managed-row" key={link.id}><div className="managed-icon">{iconFor(link.label)}</div><div className="managed-info"><b>{link.label}</b><small>{link.url}</small></div><button className="icon-btn" onClick={()=>{setEditing(link);setLinkForm({label:link.label,url:link.url,note:link.note||'',icon:link.icon||'link'})}}><Pencil/></button><button className="icon-btn danger" onClick={()=>deleteLink(link.id)}><Trash2/></button></div>)}</div></div>}
-      {tab === 'images' && <div className="panel"><div className="panel-title"><ImagePlus/><div><h2>คลังรูปภาพ</h2><p>รูปภาพที่อัปโหลดไว้ในเว็บไซต์</p></div></div><div className="asset-grid">{assets.map(asset=><div className="asset-card" key={asset.id}><img src={asset.url} alt={asset.name}/><div><span>{asset.name}</span><button className="icon-btn danger" onClick={()=>deleteAsset(asset)}><Trash2/></button></div></div>)}</div>{!assets.length&&<p className="muted">ยังไม่มีรูปภาพในคลัง ลองอัปโหลดจากหน้าข้อมูลเว็บไซต์</p>}</div>}
+      {tab === 'images' && <div className="panel"><div className="panel-title"><ImagePlus/><div><h2>คลังรูปภาพ</h2><p>รูปภาพที่อัปโหลดไว้ในเว็บไซต์</p></div></div><div className="asset-grid">{assets.map(asset=><div className="asset-card" key={asset.id}><img src={asset.url} alt={asset.name}/><div className="asset-caption"><span>{asset.name}</span><button className="icon-btn danger" onClick={()=>deleteAsset(asset)} title="ลบรูปภาพ"><Trash2/></button></div><div className="asset-actions"><button type="button" onClick={()=>applyAsset(asset,'avatar_url')}>ใช้เป็นโลโก้</button><button type="button" onClick={()=>applyAsset(asset,'cover_url')}>ใช้เป็นภาพปก</button><button type="button" onClick={()=>applyAsset(asset,'background_url')}>ใช้เป็นพื้นหลัง</button></div></div>)}</div>{!assets.length&&<p className="muted">ยังไม่มีรูปภาพในคลัง ลองอัปโหลดจากหน้าข้อมูลเว็บไซต์</p>}</div>}
       </section></div>}
     </main>;
   }
