@@ -16,6 +16,7 @@ const emptyLink = { label: '', url: '', icon: 'link', note: '' };
 
 export default function App() {
   const [page, setPage] = useState(location.hash === '#admin' ? 'admin' : 'home');
+  const [showIntro, setShowIntro] = useState(location.hash !== '#admin');
   const [site, setSite] = useState(starter);
   const [links, setLinks] = useState(demoLinks);
   const [assets, setAssets] = useState([]);
@@ -31,6 +32,12 @@ export default function App() {
   const [musicOn, setMusicOn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (!showIntro) return;
+    const timer = window.setTimeout(() => setShowIntro(false), 2500);
+    return () => window.clearTimeout(timer);
+  }, [showIntro]);
 
   useEffect(() => {
     const onHash = () => setPage(location.hash === '#admin' ? 'admin' : 'home');
@@ -153,7 +160,7 @@ export default function App() {
     </main>;
   }
 
-  return <main className={'site-shell theme-'+(site.theme||'pink')} style={site.background_url?{backgroundImage:'linear-gradient(#fff8f3bb,#fff8f3bb),url('+site.background_url+')'}:{}}>
+  return <><main className={'site-shell theme-'+(site.theme||'pink')} style={site.background_url?{backgroundImage:'linear-gradient(#fff8f3bb,#fff8f3bb),url('+site.background_url+')'}:{}}>
     <div className="admin-shortcut"><a href="#admin"><Settings size={15}/> ADMIN</a></div>
     <div className="sparkle s1">✧</div><div className="sparkle s2">✦</div><div className="sparkle s3">✧</div>
     <section className="profile-card">
@@ -166,5 +173,5 @@ export default function App() {
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
-  </main>;
+  </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite"><div className="loading-orbit"><span>✿</span></div><p className="loading-brand">ellith</p><p className="loading-message">กำลังโหลดความมหัศจรรย์...</p><div className="loading-track"><i /></div><span className="loading-sparkles">✧　♡　✧</span></div>}</>;
 }
