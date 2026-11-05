@@ -203,42 +203,47 @@ export default function App() {
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
   </main>{showIntro && <div className="loading-screen loading-screen-new" role="status" aria-live="polite">
-    <div className="loading-glow loading-glow-one" aria-hidden="true" />
-    <div className="loading-glow loading-glow-two" aria-hidden="true" />
-    <section className="loader-showcase">
-      <p className="loader-kicker">A LITTLE PLACE OF MAGIC</p>
-      <div className="loader-bunny-single" aria-hidden="true">
-        <div className="single-bunny-shadow" />
-        <svg className="single-bunny-svg" viewBox="0 0 240 210" xmlns="http://www.w3.org/2000/svg">
+    <div className="loading-glow loading-glow-peach" aria-hidden="true" />
+    <div className="loading-glow loading-glow-lavender" aria-hidden="true" />
+    <section className="loader-glass-card">
+      <div className="loader-bunny-scene" aria-hidden="true">
+        <div className="loader-bunny-shadow" />
+        <svg className="loader-bunny-svg" viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <radialGradient id="bunnyFur" cx="34%" cy="24%" r="78%"><stop offset="0" stopColor="#fff" /><stop offset=".58" stopColor="#fffafd" /><stop offset="1" stopColor="#e8dce8" /></radialGradient>
-            <linearGradient id="bunnyEar" x1="0" y1="0" x2="1" y2="1"><stop stopColor="#f7dce8" /><stop offset="1" stopColor="#e8b8cf" /></linearGradient>
-            <filter id="bunnySoftShadow" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="5" /></filter>
+            <radialGradient id="ellithFur" cx="32%" cy="22%" r="78%">
+              <stop offset="0" stopColor="#ffffff" />
+              <stop offset=".62" stopColor="#fffafd" />
+              <stop offset="1" stopColor="#e7dce9" />
+            </radialGradient>
+            <linearGradient id="ellithEar" x1="0" y1="0" x2="1" y2="1">
+              <stop stopColor="#f5dce3" />
+              <stop offset="1" stopColor="#e8c5d8" />
+            </linearGradient>
           </defs>
-          <g className="single-bunny-ears">
-            <ellipse cx="91" cy="57" rx="22" ry="55" transform="rotate(-13 91 57)" fill="url(#bunnyFur)" />
-            <ellipse cx="91" cy="57" rx="10" ry="40" transform="rotate(-13 91 57)" fill="url(#bunnyEar)" />
-            <ellipse cx="145" cy="53" rx="22" ry="57" transform="rotate(13 145 53)" fill="url(#bunnyFur)" />
-            <ellipse cx="145" cy="53" rx="10" ry="41" transform="rotate(13 145 53)" fill="url(#bunnyEar)" />
+          <g className="loader-bunny-ears">
+            <g className="loader-bunny-ear-left">
+              <ellipse cx="87" cy="59" rx="20" ry="55" transform="rotate(-12 87 59)" fill="url(#ellithFur)" />
+              <ellipse cx="87" cy="59" rx="9" ry="40" transform="rotate(-12 87 59)" fill="url(#ellithEar)" />
+            </g>
+            <g className="loader-bunny-ear-right">
+              <ellipse cx="145" cy="55" rx="20" ry="57" transform="rotate(12 145 55)" fill="url(#ellithFur)" />
+              <ellipse cx="145" cy="55" rx="9" ry="42" transform="rotate(12 145 55)" fill="url(#ellithEar)" />
+            </g>
           </g>
-          <ellipse cx="66" cy="135" rx="17" ry="17" fill="url(#bunnyFur)" />
-          <ellipse cx="117" cy="139" rx="66" ry="54" fill="url(#bunnyFur)" />
-          <ellipse cx="169" cy="164" rx="23" ry="13" fill="#fffafd" />
-          <ellipse cx="91" cy="178" rx="24" ry="13" fill="#f8f0f6" />
-          <g className="single-bunny-head">
-            <circle cx="119" cy="99" r="49" fill="url(#bunnyFur)" />
-            <ellipse cx="103" cy="112" rx="9" ry="5" fill="#f3c6d8" opacity=".75" />
-            <ellipse cx="135" cy="112" rx="9" ry="5" fill="#f3c6d8" opacity=".75" />
-            <path d="M115 111 Q119 116 123 111 Q119 107 115 111" fill="#cf91ae" />
-            <path d="M119 116 Q115 122 110 119 M119 116 Q123 122 128 119" fill="none" stroke="#ad879b" strokeWidth="2" strokeLinecap="round" />
+          <g className="loader-bunny-body">
+            <ellipse cx="117" cy="151" rx="62" ry="45" fill="url(#ellithFur)" />
+            <ellipse cx="177" cy="155" rx="19" ry="18" fill="url(#ellithFur)" />
+            <ellipse cx="84" cy="180" rx="24" ry="12" fill="#fffafd" />
+            <ellipse cx="151" cy="180" rx="24" ry="12" fill="#f8f2f8" />
+            <circle cx="119" cy="101" r="47" fill="url(#ellithFur)" />
+            <ellipse cx="119" cy="114" rx="12" ry="8" fill="#fff7fb" />
+            <path d="M115 111 Q119 107 123 111 Q119 116 115 111Z" fill="#c993ad" />
+            <path d="M119 116 Q115 122 111 119 M119 116 Q123 122 127 119" fill="none" stroke="#aa8799" strokeWidth="1.8" strokeLinecap="round" />
           </g>
-          <ellipse cx="188" cy="137" rx="14" ry="14" fill="url(#bunnyFur)" />
         </svg>
       </div>
-      <p className="loading-brand">ellith</p>
-      <p className="loading-message">Loading your sweet experience...</p>
-      <div className="loading-track"><i /></div>
-      <p className="loader-bottom">made with love & daydreams</p>
+      <p className="loader-loading-message">Loading your sweet experience...</p>
     </section>
-  </div>}</>;
+  </div>}</>; 
+}  </div>}</>;
 }
