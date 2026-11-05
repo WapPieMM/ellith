@@ -51,3 +51,11 @@
   height:100%;
   object-fit:cover;
 }
+
+
+/* Actions for reusing images already saved in the media library */
+.asset-caption{display:flex;align-items:center;gap:5px;padding:8px 8px 2px!important}
+.asset-actions{display:grid;grid-template-columns:1fr;gap:5px;padding:6px 8px 9px}
+.asset-actions button{border:1px solid #efd9e3;border-radius:7px;background:#fff8fb;color:#a87991;padding:6px 7px;font-size:10px;cursor:pointer;transition:background .2s,border-color .2s}
+.asset-actions button:hover{background:#fbeaf1;border-color:#dcaac0}
+.asset-actions button:focus-visible{outline:2px solid #c98ba7;outline-offset:2px}
