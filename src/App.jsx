@@ -244,6 +244,5 @@ export default function App() {
       </div>
       <p className="loader-loading-message">Loading your sweet experience...</p>
     </section>
-  </div>}</>; 
-}  </div>}</>;
+  </div>}</>;
 }
