@@ -80,7 +80,8 @@
 }
 .profile-card{
   background:#fffdfdf5;
-  box-shadow:0 28px 90px #160e1c55,0 0 0 1px #ffffff55;
+  border:0;
+  box-shadow:0 28px 90px #160e1c44;
 }
 .admin-shortcut a{color:#f0c7d9}
 .admin-shortcut a:hover{color:#fff0f6}
