@@ -34,3 +34,20 @@
   box-shadow:none;
   backdrop-filter:none;
 }
+
+
+/* Uploaded cover image is now displayed on the public profile page */
+.profile-cover{
+  width:min(100%,390px);
+  aspect-ratio:16/5;
+  margin:0 auto 22px;
+  overflow:hidden;
+  border-radius:16px;
+  box-shadow:0 8px 24px #c88aa522;
+}
+.profile-cover img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
