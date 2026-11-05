@@ -39,31 +39,33 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [showIntro]);
 
-  // Visible coquette burst on mouse clicks and touchscreen taps.
+  // Strong, visible sparkle burst for mouse clicks and touchscreen taps.
   useEffect(() => {
-    const symbols = ['✧', '♡', '✦', '୨୧', '·', '♥'];
-    const onPointerDown = (event) => {
-      if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const symbols = ['♡', '✧', '୨୧', '✦', '♥', '✿', '♡', '✧'];
+    const onClick = (event) => {
+      const x = event.clientX ?? (event.changedTouches?.[0]?.clientX);
+      const y = event.clientY ?? (event.changedTouches?.[0]?.clientY);
+      if (typeof x !== 'number' || typeof y !== 'number') return;
       const burst = document.createElement('span');
       burst.className = 'tap-burst';
       burst.setAttribute('aria-hidden', 'true');
-      burst.style.left = event.clientX + 'px';
-      burst.style.top = event.clientY + 'px';
+      burst.style.left = x + 'px';
+      burst.style.top = y + 'px';
       symbols.forEach((symbol, index) => {
         const particle = document.createElement('i');
         const angle = (Math.PI * 2 * index) / symbols.length;
-        const distance = index % 2 ? 34 : 48;
+        const distance = index % 2 ? 58 : 76;
         particle.textContent = symbol;
         particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
         particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
-        particle.style.setProperty('--delay', (index * 18) + 'ms');
+        particle.style.setProperty('--delay', (index * 22) + 'ms');
         burst.appendChild(particle);
       });
       document.body.appendChild(burst);
-      window.setTimeout(() => burst.remove(), 850);
+      window.setTimeout(() => burst.remove(), 1100);
     };
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
-    return () => window.removeEventListener('pointerdown', onPointerDown);
+    document.addEventListener('click', onClick, true);
+    return () => document.removeEventListener('click', onClick, true);
   }, []);
 
   useEffect(() => {
