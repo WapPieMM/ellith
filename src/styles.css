@@ -320,14 +320,14 @@
   height:100%;
   overflow:visible;
   transform-origin:50% 86%;
-  animation:ellith-bunny-hop 1.65s cubic-bezier(.36,.07,.48,.98) infinite;
+  animation:ellith-bunny-hop 1.9s cubic-bezier(.4,0,.2,1) infinite;
   will-change:transform;
   backface-visibility:hidden;
 }
 .loader-bunny-ears{
   transform-box:fill-box;
   transform-origin:50% 100%;
-  animation:ellith-bunny-ears 1.65s ease-in-out infinite;
+  animation:ellith-bunny-ears 1.9s cubic-bezier(.34,1.56,.64,1) infinite;
   will-change:transform;
 }
 .loader-bunny-shadow{
@@ -340,7 +340,7 @@
   background:rgba(139,117,150,.18);
   filter:blur(7px);
   transform:translate3d(-50%,0,0);
-  animation:ellith-bunny-shadow 1.65s ease-in-out infinite;
+  animation:ellith-bunny-shadow 1.9s cubic-bezier(.4,0,.2,1) infinite;
   will-change:transform,opacity;
 }
 .loader-loading-message{
@@ -356,11 +356,34 @@
   will-change:transform,opacity;
 }
 @keyframes ellith-bunny-hop{
-  0%,100%{transform:translate3d(0,0,0) scale(1)}
-  18%{transform:translate3d(0,-7px,0) scale(1.015,.99)}
-  40%{transform:translate3d(0,-22px,0) scale(.99,1.025)}
-  58%{transform:translate3d(0,-4px,0) scale(1.02,.985)}
-  72%{transform:translate3d(0,0,0) scale(1)}
+  0%,100%{
+    transform:translate3d(0,0,0) scale(1,1);
+    animation-timing-function:cubic-bezier(.55,.08,.72,.25);
+  }
+  12%{
+    transform:translate3d(0,2px,0) scale(1.045,.93);
+    animation-timing-function:cubic-bezier(.18,.72,.28,1);
+  }
+  34%{
+    transform:translate3d(0,-25px,0) scale(.97,1.065);
+    animation-timing-function:cubic-bezier(.42,0,.72,.42);
+  }
+  52%{
+    transform:translate3d(0,-27px,0) scale(.99,1.035);
+    animation-timing-function:cubic-bezier(.25,.72,.32,1);
+  }
+  68%{
+    transform:translate3d(0,1px,0) scale(1.075,.91);
+    animation-timing-function:cubic-bezier(.18,.78,.3,1);
+  }
+  78%{
+    transform:translate3d(0,-5px,0) scale(.985,1.025);
+    animation-timing-function:cubic-bezier(.45,0,.72,.45);
+  }
+  88%{
+    transform:translate3d(0,0,0) scale(1.012,.99);
+    animation-timing-function:cubic-bezier(.2,.72,.3,1);
+  }
 }
 @keyframes ellith-bunny-ears{
   0%,100%{transform:rotate(0)}
