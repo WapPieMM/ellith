@@ -293,3 +293,121 @@
 @media(prefers-reduced-motion:reduce){
  .loading-screen-new *, .loading-screen-new *:before,.loading-screen-new *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
 }
+
+
+/* Performance + responsive polish for the single-bunny loading experience.
+   Keep motion on compositor-friendly transform/opacity properties. */
+.loading-screen-new{
+  min-height:100svh;
+  isolation:isolate;
+  contain:layout paint;
+}
+.loading-screen-new .loading-glow{
+  will-change:transform;
+  backface-visibility:hidden;
+}
+.loader-showcase{
+  box-sizing:border-box;
+  width:min(440px,100%);
+  min-height:490px;
+  contain:layout style;
+}
+.loader-bunny-single{
+  flex:0 0 auto;
+  contain:layout paint;
+}
+.single-bunny-svg,
+.single-bunny-ears,
+.single-bunny-head,
+.single-bunny-shadow{
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+.single-bunny-svg{
+  transform-box:view-box;
+  filter:none;
+  will-change:transform;
+}
+.single-bunny-ears,
+.single-bunny-head{
+  will-change:transform;
+}
+.single-bunny-shadow{
+  will-change:transform,opacity;
+}
+.loader-showcase .loading-message{
+  will-change:transform,opacity;
+}
+.loader-showcase .loading-track i{
+  will-change:transform;
+}
+@keyframes single-bunny-hop{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  18%{transform:translate3d(0,-7px,0) scale(1.015,.99)}
+  38%{transform:translate3d(0,-24px,0) scale(.99,1.025)}
+  55%{transform:translate3d(0,-5px,0) scale(1.02,.98)}
+  70%{transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes single-bunny-ear{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  24%{transform:translate3d(0,0,0) rotate(-4deg)}
+  43%{transform:translate3d(0,0,0) rotate(5deg)}
+  62%{transform:translate3d(0,0,0) rotate(-2deg)}
+}
+@keyframes single-bunny-head-bob{
+  0%,100%{transform:translate3d(0,0,0) rotate(0)}
+  35%{transform:translate3d(0,0,0) rotate(-2deg)}
+  58%{transform:translate3d(0,0,0) rotate(2deg)}
+}
+@keyframes single-bunny-shadow{
+  0%,100%{transform:translate3d(-50%,0,0) scaleX(1);opacity:.85}
+  38%{transform:translate3d(-50%,0,0) scaleX(.7);opacity:.45}
+  60%{transform:translate3d(-50%,0,0) scaleX(1.08);opacity:.9}
+}
+@keyframes loader-breathe{
+  0%,100%{opacity:.72;transform:translate3d(0,0,0) scale(1)}
+  50%{opacity:1;transform:translate3d(0,0,0) scale(1.025)}
+}
+@keyframes loader-glow{
+  from{transform:translate3d(0,0,0) scale(.92)}
+  to{transform:translate3d(3vw,-2vh,0) scale(1.12)}
+}
+@media(max-width:520px){
+  .loader-showcase{
+    min-height:430px;
+    padding:34px 22px 28px;
+  }
+  .loader-bunny-single{width:210px;height:198px}
+}
+@media(max-height:620px){
+  .loader-showcase{
+    height:calc(100svh - 32px);
+    min-height:0;
+    padding:16px 20px;
+  }
+  .loader-showcase .loader-kicker{margin-bottom:2px}
+  .loader-bunny-single{
+    width:auto;
+    height:min(174px,36svh);
+    aspect-ratio:240 / 220;
+  }
+  .loader-showcase .loading-brand{margin-top:0;font-size:25px}
+  .loader-showcase .loading-message{margin:5px 0 12px}
+  .loader-showcase .loader-bottom{margin-top:14px}
+}
+@media(max-width:360px){
+  .loader-showcase{padding-inline:16px}
+  .loader-showcase .loading-message{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  .loading-screen-new .loading-glow,
+  .loading-screen-new .single-bunny-svg,
+  .loading-screen-new .single-bunny-ears,
+  .loading-screen-new .single-bunny-head,
+  .loading-screen-new .single-bunny-shadow,
+  .loading-screen-new .loading-message,
+  .loading-screen-new .loading-track i{
+    animation:none!important;
+  }
+  .loading-screen-new .single-bunny-shadow{opacity:.65;transform:translate3d(-50%,0,0)!important}
+}
