@@ -4,9 +4,13 @@ import { Instagram, Facebook, MessageCircle, Plus, Trash2, Pencil, LogOut, Image
 
 const defaultFrameUrl = '/assets/aistudio/IMG_0355_f5a957cf.png';
 const defaultMusicUrl = '/assets/aistudio/dreamy_lullaby.mp3';
+const defaultMusicCoverUrl = '/assets/aistudio/vinyl_label_art.png';
+const defaultMusicTitle = 'love.';
+const defaultMusicArtist = 'wave to earth';
 const starter = {
   name: 'ellith', tagline: 'a little place of magic', bio: 'welcome to my little corner ♡', theme: 'pink',
-  avatar_url: '', frame_url: defaultFrameUrl, background_url: '', music_url: defaultMusicUrl
+  avatar_url: '', frame_url: defaultFrameUrl, background_url: '', music_url: defaultMusicUrl,
+  music_cover_url: defaultMusicCoverUrl, music_title: defaultMusicTitle, music_artist: defaultMusicArtist
 };
 const demoLinks = [
   { id: 'demo-ig', label: 'Instagram', url: 'https://instagram.com/', icon: 'instagram', note: 'follow my little world' },
@@ -26,8 +30,9 @@ const readTheme = (value) => {
 const writeTheme = (colors) => `custom|${colors.background}|${colors.accent}|${colors.text}`;
 const fileLabelFor = (url, fallbackText) => {
   if (!url) return fallbackText;
+  if (typeof url === 'string' && url.startsWith('data:')) return 'อัปโหลดรูปภาพแล้ว ♡';
   try {
-    const clean = decodeURIComponent(url.split('?')[0]);
+    const clean = decodeURIComponent(url.split('#')[0].split('?')[0]);
     const name = clean.split('/').pop();
     return name || 'อัปโหลดไฟล์แล้ว';
   } catch {
@@ -35,13 +40,116 @@ const fileLabelFor = (url, fallbackText) => {
   }
 };
 
+const packMusicField = (s) => {
+  const base = String(s.music_url || defaultMusicUrl).split('#ellith_meta=')[0];
+  const meta = {
+    t: s.music_title ?? defaultMusicTitle,
+    a: s.music_artist ?? defaultMusicArtist,
+    c: s.music_cover_url && !String(s.music_cover_url).startsWith('blob:') ? s.music_cover_url : defaultMusicCoverUrl
+  };
+  return `${base}#ellith_meta=${encodeURIComponent(JSON.stringify(meta))}`;
+};
+
+const unpackMusicField = (rawUrl, fallbackSite = {}) => {
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    return {
+      music_url: defaultMusicUrl,
+      music_title: fallbackSite.music_title ?? defaultMusicTitle,
+      music_artist: fallbackSite.music_artist ?? defaultMusicArtist,
+      music_cover_url: fallbackSite.music_cover_url || defaultMusicCoverUrl
+    };
+  }
+  const [base, hashPart] = rawUrl.split('#ellith_meta=');
+  if (!hashPart) {
+    return {
+      music_url: base || defaultMusicUrl,
+      music_title: fallbackSite.music_title ?? defaultMusicTitle,
+      music_artist: fallbackSite.music_artist ?? defaultMusicArtist,
+      music_cover_url: fallbackSite.music_cover_url || defaultMusicCoverUrl
+    };
+  }
+  try {
+    const parsed = JSON.parse(decodeURIComponent(hashPart));
+    return {
+      music_url: base || defaultMusicUrl,
+      music_title: parsed.t ?? fallbackSite.music_title ?? defaultMusicTitle,
+      music_artist: parsed.a ?? fallbackSite.music_artist ?? defaultMusicArtist,
+      music_cover_url: parsed.c || fallbackSite.music_cover_url || defaultMusicCoverUrl
+    };
+  } catch {
+    return {
+      music_url: base || defaultMusicUrl,
+      music_title: fallbackSite.music_title ?? defaultMusicTitle,
+      music_artist: fallbackSite.music_artist ?? defaultMusicArtist,
+      music_cover_url: fallbackSite.music_cover_url || defaultMusicCoverUrl
+    };
+  }
+};
+
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : URL.createObjectURL(file));
+    reader.onerror = () => resolve(URL.createObjectURL(file));
+    reader.readAsDataURL(file);
+  });
+
+const loadLocal = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+const saveLocal = (key, val) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch {
+    // ignore storage quota errors
+  }
+};
+
+const linkPresets = [
+  { label: 'Instagram', url: 'https://instagram.com/', note: 'follow my little world' },
+  { label: 'Facebook', url: 'https://facebook.com/', note: 'let’s keep in touch' },
+  { label: 'Discord', url: 'https://discord.gg/', note: 'come say hello' },
+  { label: 'TikTok', url: 'https://tiktok.com/@', note: 'watch my little moments' },
+  { label: 'Line', url: 'https://line.me/ti/p/', note: 'chat with me' },
+  { label: 'YouTube', url: 'https://youtube.com/@', note: 'my dreamy vlog' },
+];
+
+const themeOptions = [
+  { id: 'pink', name: 'Pink & White', desc: 'ชมพูพาสเทลละมุนคลาสสิก', swatches: ['#fff8fb', '#f6dce8', '#986d80'] },
+  { id: 'lavender', name: 'Lavender Dream', desc: 'ม่วงลาเวนเดอร์ชวนฝัน', swatches: ['#fbf8ff', '#eadff8', '#8c6f9a'] },
+  { id: 'cream', name: 'Soft Rose Cream', desc: 'ครีมกุหลาบนุ่มนวลอบอุ่น', swatches: ['#fffaf7', '#f7e1ea', '#9c6d83'] },
+  { id: 'custom', name: 'กำหนดสีเอง', desc: 'ปรับแต่งโทนสีพื้นหลังและสีหลักอิสระ', swatches: ['#fff0f6', '#d69bb5', '#705563'] },
+];
+
 export default function App() {
   const [page, setPage] = useState(location.hash === '#admin' ? 'admin' : 'home');
-  const [site, setSite] = useState(starter);
-  const [links, setLinks] = useState(demoLinks);
-  const [assets, setAssets] = useState([]);
+  const [site, setSite] = useState(() => {
+    const saved = loadLocal('ellith_site_v1', starter);
+    const cleanUrl = (u, fallback) => (typeof u === 'string' && u.startsWith('blob:') ? fallback : (u || fallback));
+    const unpacked = unpackMusicField(saved.music_url, saved);
+    return {
+      ...starter,
+      ...saved,
+      avatar_url: cleanUrl(saved.avatar_url, ''),
+      frame_url: cleanUrl(saved.frame_url, defaultFrameUrl),
+      background_url: cleanUrl(saved.background_url, ''),
+      music_url: cleanUrl(unpacked.music_url, defaultMusicUrl),
+      music_cover_url: cleanUrl(saved.music_cover_url || unpacked.music_cover_url, defaultMusicCoverUrl),
+      music_title: saved.music_title ?? unpacked.music_title ?? defaultMusicTitle,
+      music_artist: saved.music_artist ?? unpacked.music_artist ?? defaultMusicArtist
+    };
+  });
+  const [links, setLinks] = useState(() => loadLocal('ellith_links_v1', demoLinks));
+  const [assets, setAssets] = useState(() => loadLocal('ellith_assets_v1', []).filter(a => !String(a?.url || '').startsWith('blob:')));
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState(null);
+  const [localStudioMode, setLocalStudioMode] = useState(!isSupabaseConfigured);
+  const [assetFilter, setAssetFilter] = useState('all');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -50,15 +158,58 @@ export default function App() {
   const [linkForm, setLinkForm] = useState(emptyLink);
   const [notice, setNotice] = useState('');
   const [musicOn, setMusicOn] = useState(false);
-  const [volume, setVolume] = useState(0.65);
+  const [volume, setVolume] = useState(0.18);
   const [musicProgress, setMusicProgress] = useState(38);
   const [musicTime, setMusicTime] = useState('1:38');
   const [showPassword, setShowPassword] = useState(false);
   const [saving, setSaving] = useState(false);
   const [bottomSlideIndex, setBottomSlideIndex] = useState(0);
   const [stampIndex, setStampIndex] = useState(0);
+  const [preloaderProgress, setPreloaderProgress] = useState(0);
+  const [preloaderFading, setPreloaderFading] = useState(false);
+  const [preloaderDone, setPreloaderDone] = useState(false);
   const audioRef = useRef(null);
   const userPausedRef = useRef(false);
+
+  useEffect(() => {
+    const duration = 2500;
+    const start = performance.now();
+    let rafId = 0;
+    let fadeTimer = 0;
+    let doneTimer = 0;
+
+    const tick = (now) => {
+      const elapsed = Math.max(0, now - start);
+      const t = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - t, 2.4);
+      const nextPct = Math.min(100, Math.round(eased * 100));
+      setPreloaderProgress(nextPct);
+      if (t < 1) {
+        rafId = window.requestAnimationFrame(tick);
+      } else {
+        setPreloaderProgress(100);
+        fadeTimer = window.setTimeout(() => {
+          setPreloaderFading(true);
+          doneTimer = window.setTimeout(() => {
+            setPreloaderDone(true);
+          }, 560);
+        }, 180);
+      }
+    };
+
+    rafId = window.requestAnimationFrame(tick);
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(fadeTimer);
+      window.clearTimeout(doneTimer);
+    };
+  }, []);
+
+  const showToast = (msg) => {
+    setNotice(msg);
+    window.clearTimeout(window.__ellithNoticeTimer);
+    window.__ellithNoticeTimer = window.setTimeout(() => setNotice(''), 3400);
+  };
 
   const bottomSlides = [
     { type: 'text', text: '♡ thank you for visiting ♡' },
@@ -209,12 +360,19 @@ export default function App() {
       supabase.from('media_assets').select('*').order('created_at', { ascending: false })
     ]);
     if (siteRes.data) {
-      setSite({
+      const localSaved = loadLocal('ellith_site_v1', starter);
+      const unpacked = unpackMusicField(siteRes.data.music_url, localSaved);
+      const merged = {
         ...starter,
         ...siteRes.data,
         frame_url: siteRes.data.frame_url || defaultFrameUrl,
-        music_url: siteRes.data.music_url || defaultMusicUrl
-      });
+        music_url: unpacked.music_url || defaultMusicUrl,
+        music_cover_url: unpacked.music_cover_url || localSaved.music_cover_url || defaultMusicCoverUrl,
+        music_title: unpacked.music_title ?? localSaved.music_title ?? defaultMusicTitle,
+        music_artist: unpacked.music_artist ?? localSaved.music_artist ?? defaultMusicArtist
+      };
+      setSite(merged);
+      saveLocal('ellith_site_v1', merged);
     }
     if (linksRes.data?.length) setLinks(linksRes.data);
     else if (!linksRes.error) setLinks([]);
@@ -223,12 +381,29 @@ export default function App() {
   }
   useEffect(() => { refresh(); }, [session]);
 
+  useEffect(() => {
+    saveLocal('ellith_site_v1', site);
+  }, [site]);
+
   const configured = isSupabaseConfigured;
   const publicLinks = useMemo(() => links.filter(link => link.is_active !== false), [links]);
   const customColors = readTheme(site.theme);
   const isCustomTheme = typeof site.theme === 'string' && site.theme.startsWith('custom|');
   const updateCustomColor = (key, value) => setSite(current => ({ ...current, theme: writeTheme({ ...readTheme(current.theme), [key]: value }) }));
-  const activeMusicSrc = site.music_url || defaultMusicUrl;
+  const activeMusicSrc = String(site.music_url || defaultMusicUrl).split('#')[0];
+
+  const buildSitePayload = (nextSite) => ({
+    id: 1,
+    name: nextSite.name,
+    tagline: nextSite.tagline,
+    bio: nextSite.bio,
+    theme: nextSite.theme,
+    avatar_url: nextSite.avatar_url,
+    frame_url: nextSite.frame_url,
+    background_url: nextSite.background_url,
+    music_url: packMusicField(nextSite),
+    updated_at: new Date().toISOString()
+  });
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -243,6 +418,7 @@ export default function App() {
 
     const tryAutoPlay = () => {
       if (userPausedRef.current || !audio.paused) return;
+      audio.volume = volume;
       audio.play().then(() => {
         setMusicOn(true);
       }).catch(() => {});
@@ -252,21 +428,26 @@ export default function App() {
 
     const onFirstInteraction = (e) => {
       if (userPausedRef.current) return;
-      if (e.target?.closest?.('.mp3-wheel')) return;
+      if (e.target?.closest?.('.music-control') || e.target?.closest?.('.preview-mp3-mini')) return;
       if (audio.paused) {
+        audio.volume = volume;
         audio.play().then(() => {
           setMusicOn(true);
-        }).catch(() => {});
+        }).catch(() => {
+          if (audio.src !== location.origin + defaultMusicUrl) {
+            audio.src = defaultMusicUrl;
+            audio.play().then(() => setMusicOn(true)).catch(() => {});
+          }
+        });
       }
     };
 
-    document.addEventListener('pointerdown', onFirstInteraction, { passive: true });
-    document.addEventListener('keydown', onFirstInteraction, { passive: true });
+    const events = ['click', 'touchend', 'mousedown', 'pointerdown', 'keydown'];
+    events.forEach(evt => document.addEventListener(evt, onFirstInteraction, { capture: true, passive: true }));
     return () => {
-      document.removeEventListener('pointerdown', onFirstInteraction);
-      document.removeEventListener('keydown', onFirstInteraction);
+      events.forEach(evt => document.removeEventListener(evt, onFirstInteraction, { capture: true }));
     };
-  }, [activeMusicSrc]);
+  }, [activeMusicSrc, volume]);
 
   function adjustVolume(delta, e) {
     e?.stopPropagation();
@@ -313,49 +494,125 @@ export default function App() {
 
   async function login(e) {
     e.preventDefault(); setLoginError('');
-    if (!supabase) { setLoginError('เชื่อมต่อ Supabase ก่อนจึงจะเข้าสู่ระบบหลังบ้านได้'); return; }
+    if (!supabase) {
+      setLocalStudioMode(true);
+      showToast('เข้าสู่โหมดจัดการเว็บไซต์เรียบร้อยแล้ว ♡');
+      return;
+    }
     const email = username.trim();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setLoginError('เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบอีเมลและรหัสผ่าน');
+    if (error) setLoginError('เข้าสู่ระบบไม่สำเร็จ กรุณาตรวจสอบอีเมลและรหัสผ่าน หรือเลือกเข้าโหมดแก้ไขด่วนด้านล่าง');
   }
-  async function logout() { await supabase?.auth.signOut(); setPage('home'); location.hash = ''; }
+  async function logout() {
+    await supabase?.auth.signOut();
+    setLocalStudioMode(false);
+    setPage('home');
+    location.hash = '';
+  }
 
   async function saveSite(e) {
-    e?.preventDefault(); if (!supabase) return; setSaving(true);
-    const payload = { id: 1, name: site.name, tagline: site.tagline, bio: site.bio, theme: site.theme, avatar_url: site.avatar_url, frame_url: site.frame_url, background_url: site.background_url, music_url: site.music_url, updated_at: new Date().toISOString() };
+    e?.preventDefault();
+    setSaving(true);
+    saveLocal('ellith_site_v1', site);
+    if (!supabase || !session) {
+      setSaving(false);
+      showToast('บันทึกข้อมูลเว็บไซต์เรียบร้อยแล้ว หน้าเว็บอัปเดตทันที ♡');
+      return;
+    }
+    const payload = buildSitePayload(site);
     const { error } = await supabase.from('site_content').upsert(payload);
-    setSaving(false); setNotice(error ? error.message : 'บันทึกข้อมูลเว็บไซต์แล้ว ♡'); setTimeout(() => setNotice(''), 3000);
+    setSaving(false);
+    showToast(error ? error.message : 'บันทึกข้อมูลเว็บไซต์เรียบร้อยแล้ว ♡');
   }
 
   async function saveLink(e) {
-    e.preventDefault(); if (!supabase) return;
-    const payload = { label: linkForm.label.trim(), url: linkForm.url.trim(), icon: linkForm.icon || 'link', note: linkForm.note || '', sort_order: editing?.sort_order ?? links.length, is_active: true };
+    e.preventDefault();
+    const payload = {
+      label: linkForm.label.trim(),
+      url: linkForm.url.trim(),
+      icon: linkForm.icon || 'link',
+      note: linkForm.note || '',
+      sort_order: editing?.sort_order ?? links.length,
+      is_active: editing ? editing.is_active !== false : true
+    };
+    if (!supabase || !session) {
+      const nextLinks = editing
+        ? links.map(item => (item.id === editing.id ? { ...item, ...payload } : item))
+        : [...links, { ...payload, id: 'local-' + Date.now() }];
+      setLinks(nextLinks);
+      saveLocal('ellith_links_v1', nextLinks);
+      setEditing(null);
+      setLinkForm(emptyLink);
+      showToast(editing ? 'อัปเดตช่องทางติดต่อเรียบร้อยแล้ว ♡' : 'เพิ่มช่องทางติดต่อใหม่แล้ว ♡');
+      return;
+    }
     const result = editing ? await supabase.from('contact_links').update(payload).eq('id', editing.id) : await supabase.from('contact_links').insert(payload);
-    if (result.error) { setNotice(result.error.message); return; }
-    setEditing(null); setLinkForm(emptyLink); await refresh(); setNotice('บันทึกช่องทางติดต่อแล้ว ♡');
+    if (result.error) { showToast(result.error.message); return; }
+    setEditing(null); setLinkForm(emptyLink); await refresh(); showToast('บันทึกช่องทางติดต่อแล้ว ♡');
   }
+
   async function deleteLink(id) {
-    if (!confirm('ลบช่องทางติดต่อนี้ใช่ไหม?')) return;
+    if (!supabase || !session) {
+      const nextLinks = links.filter(item => item.id !== id);
+      setLinks(nextLinks);
+      saveLocal('ellith_links_v1', nextLinks);
+      if (editing?.id === id) { setEditing(null); setLinkForm(emptyLink); }
+      showToast('ลบช่องทางติดต่อเรียบร้อยแล้ว');
+      return;
+    }
     const { error } = await supabase.from('contact_links').delete().eq('id', id);
-    if (error) setNotice(error.message); else { await refresh(); setNotice('ลบช่องทางแล้ว'); }
+    if (error) showToast(error.message); else { await refresh(); showToast('ลบช่องทางแล้ว'); }
   }
+
+  async function toggleLinkActive(link) {
+    const nextActive = link.is_active === false;
+    const nextLinks = links.map(item => (item.id === link.id ? { ...item, is_active: nextActive } : item));
+    setLinks(nextLinks);
+    saveLocal('ellith_links_v1', nextLinks);
+    if (supabase && session) {
+      await supabase.from('contact_links').update({ is_active: nextActive }).eq('id', link.id);
+    }
+    showToast(nextActive ? `แสดงช่องทาง ${link.label} บนหน้าเว็บแล้ว ♡` : `ซ่อนช่องทาง ${link.label} ชั่วคราวแล้ว`);
+  }
+
+  async function moveLink(index, direction) {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= links.length) return;
+    const nextLinks = [...links];
+    const [moved] = nextLinks.splice(index, 1);
+    nextLinks.splice(targetIndex, 0, moved);
+    const reordered = nextLinks.map((item, idx) => ({ ...item, sort_order: idx }));
+    setLinks(reordered);
+    saveLocal('ellith_links_v1', reordered);
+    if (supabase && session) {
+      await Promise.all(reordered.map(item => supabase.from('contact_links').update({ sort_order: item.sort_order }).eq('id', item.id)));
+    }
+    showToast('จัดลำดับช่องทางติดต่อเรียบร้อยแล้ว ♡');
+  }
+
   async function uploadImage(e, field) {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setNotice('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
+      showToast('กรุณาเลือกไฟล์รูปภาพเท่านั้น');
       e.target.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setNotice('รูปภาพต้องมีขนาดไม่เกิน 10 MB');
+      showToast('รูปภาพต้องมีขนาดไม่เกิน 10 MB');
       e.target.value = '';
       return;
     }
-    if (!supabase) {
-      const localUrl = URL.createObjectURL(file);
-      setSite(s => ({ ...s, [field]: localUrl }));
-      setNotice('อัปโหลดไฟล์รูปภาพเรียบร้อยแล้ว ♡');
+    if (!supabase || !session) {
+      const localUrl = await readFileAsDataUrl(file);
+      const nextSite = { ...site, [field]: localUrl };
+      setSite(nextSite);
+      saveLocal('ellith_site_v1', nextSite);
+      const newAsset = { id: 'asset-' + Date.now(), name: file.name, path: localUrl, url: localUrl, kind: field };
+      const nextAssets = [newAsset, ...assets];
+      setAssets(nextAssets);
+      saveLocal('ellith_assets_v1', nextAssets);
+      showToast('อัปโหลดและเปลี่ยนรูปภาพเรียบร้อยแล้ว ♡');
       e.target.value = '';
       return;
     }
@@ -364,30 +621,20 @@ export default function App() {
     const path = 'ellith/' + Date.now() + '-' + Math.random().toString(36).slice(2) + '.' + ext;
     const { error: uploadError } = await supabase.storage.from('ellith-media').upload(path, file, { upsert: false });
     if (uploadError) {
-      setNotice('อัปโหลดรูปภาพไม่สำเร็จ: ' + uploadError.message);
+      showToast('อัปโหลดรูปภาพไม่สำเร็จ: ' + uploadError.message);
       e.target.value = '';
       return;
     }
 
     const { data } = supabase.storage.from('ellith-media').getPublicUrl(path);
     const nextSite = { ...site, [field]: data.publicUrl };
-    const payload = {
-      id: 1,
-      name: nextSite.name,
-      tagline: nextSite.tagline,
-      bio: nextSite.bio,
-      theme: nextSite.theme,
-      avatar_url: nextSite.avatar_url,
-      frame_url: nextSite.frame_url,
-      background_url: nextSite.background_url,
-      music_url: nextSite.music_url,
-      updated_at: new Date().toISOString()
-    };
+    saveLocal('ellith_site_v1', nextSite);
+    const payload = buildSitePayload(nextSite);
 
     const { error: saveError } = await supabase.from('site_content').upsert(payload);
     if (saveError) {
       await supabase.storage.from('ellith-media').remove([path]);
-      setNotice('อัปโหลดไฟล์แล้ว แต่บันทึกเว็บไซต์ไม่สำเร็จ: ' + saveError.message);
+      showToast('อัปโหลดไฟล์แล้ว แต่บันทึกเว็บไซต์ไม่สำเร็จ: ' + saveError.message);
       e.target.value = '';
       return;
     }
@@ -406,56 +653,50 @@ export default function App() {
     if (assetRows) setAssets(assetRows);
 
     if (assetError || assetsError) {
-      setNotice('บันทึกรูปภาพบนเว็บไซต์แล้ว แต่มีปัญหาในการอัปเดตคลังรูปภาพ');
+      showToast('บันทึกรูปภาพบนเว็บไซต์แล้ว แต่มีปัญหาในการอัปเดตคลังรูปภาพ');
     } else {
-      setNotice('อัปโหลดและบันทึกรูปภาพเรียบร้อยแล้ว หน้าเว็บไซต์จะแสดงรูปใหม่นี้ทันที ♡');
+      showToast('อัปโหลดและบันทึกรูปภาพเรียบร้อยแล้ว หน้าเว็บไซต์จะแสดงรูปใหม่นี้ทันที ♡');
     }
     e.target.value = '';
   }
 
   async function clearUploadedField(field) {
-    const fallbackValue = field === 'frame_url' ? defaultFrameUrl : field === 'music_url' ? defaultMusicUrl : '';
+    const fallbackValue =
+      field === 'frame_url'
+        ? defaultFrameUrl
+        : field === 'music_url'
+        ? defaultMusicUrl
+        : field === 'music_cover_url'
+        ? defaultMusicCoverUrl
+        : '';
     const nextSite = { ...site, [field]: fallbackValue };
     setSite(nextSite);
-    if (!supabase) return;
-    const payload = {
-      id: 1,
-      name: nextSite.name,
-      tagline: nextSite.tagline,
-      bio: nextSite.bio,
-      theme: nextSite.theme,
-      avatar_url: nextSite.avatar_url,
-      frame_url: nextSite.frame_url,
-      background_url: nextSite.background_url,
-      music_url: nextSite.music_url,
-      updated_at: new Date().toISOString()
-    };
+    saveLocal('ellith_site_v1', nextSite);
+    if (!supabase || !session) {
+      showToast('รีเซ็ตไฟล์กลับเป็นค่าเริ่มต้นเรียบร้อยแล้ว ♡');
+      return;
+    }
+    const payload = buildSitePayload(nextSite);
     await supabase.from('site_content').upsert(payload);
-    setNotice('รีเซ็ตไฟล์เรียบร้อยแล้ว ♡');
+    showToast('รีเซ็ตไฟล์เรียบร้อยแล้ว ♡');
   }
 
   async function applyAsset(asset, field) {
-    if (!['avatar_url', 'frame_url', 'background_url', 'music_url'].includes(field)) return;
+    if (!['avatar_url', 'frame_url', 'background_url', 'music_cover_url', 'music_url'].includes(field)) return;
     const nextSite = { ...site, [field]: asset.url };
-    const payload = {
-      id: 1,
-      name: nextSite.name,
-      tagline: nextSite.tagline,
-      bio: nextSite.bio,
-      theme: nextSite.theme,
-      avatar_url: nextSite.avatar_url,
-      frame_url: nextSite.frame_url,
-      background_url: nextSite.background_url,
-      music_url: nextSite.music_url,
-      updated_at: new Date().toISOString()
-    };
-    const { error } = await supabase.from('site_content').upsert(payload);
-    if (error) {
-      setNotice('นำไฟล์ไปใช้ไม่สำเร็จ: ' + error.message);
+    setSite(nextSite);
+    saveLocal('ellith_site_v1', nextSite);
+    if (!supabase || !session) {
+      showToast('นำไฟล์ไปใช้บนเว็บไซต์เรียบร้อยแล้ว ♡');
       return;
     }
-    setSite(nextSite);
-    setNotice('นำไฟล์ไปใช้บนเว็บไซต์เรียบร้อยแล้ว ♡');
+    const payload = buildSitePayload(nextSite);
+    const { error } = await supabase.from('site_content').upsert(payload);
+    if (error) {
+      showToast('นำไฟล์ไปใช้ไม่สำเร็จ: ' + error.message);
+      return;
+    }
+    showToast('นำไฟล์ไปใช้บนเว็บไซต์เรียบร้อยแล้ว ♡');
   }
 
   async function uploadMusic(e) {
@@ -464,19 +705,25 @@ export default function App() {
     const lowerName = file.name.toLowerCase();
     const isAudio = file.type.startsWith('audio/') || ['.mp3', '.wav', '.ogg', '.m4a'].some(ext => lowerName.endsWith(ext));
     if (!isAudio) {
-      setNotice('กรุณาเลือกไฟล์เพลง (เช่น MP3) เท่านั้น');
+      showToast('กรุณาเลือกไฟล์เพลง (เช่น MP3) เท่านั้น');
       e.target.value = '';
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setNotice('ไฟล์เพลงต้องมีขนาดไม่เกิน 10 MB');
+      showToast('ไฟล์เพลงต้องมีขนาดไม่เกิน 10 MB');
       e.target.value = '';
       return;
     }
-    if (!supabase) {
+    if (!supabase || !session) {
       const localUrl = URL.createObjectURL(file);
-      setSite(s => ({ ...s, music_url: localUrl }));
-      setNotice('อัปโหลดไฟล์เพลงสำเร็จ ♡');
+      const nextSite = { ...site, music_url: localUrl };
+      setSite(nextSite);
+      saveLocal('ellith_site_v1', nextSite);
+      const newAsset = { id: 'asset-' + Date.now(), name: file.name, path: localUrl, url: localUrl, kind: 'music' };
+      const nextAssets = [newAsset, ...assets];
+      setAssets(nextAssets);
+      saveLocal('ellith_assets_v1', nextAssets);
+      showToast('อัปโหลดไฟล์เพลงสำเร็จ พร้อมเล่นทันที ♡');
       e.target.value = '';
       return;
     }
@@ -488,28 +735,18 @@ export default function App() {
       contentType: file.type || 'audio/mpeg'
     });
     if (error) {
-      setNotice('อัปโหลดเพลงไม่สำเร็จ: ' + error.message);
+      showToast('อัปโหลดเพลงไม่สำเร็จ: ' + error.message);
       e.target.value = '';
       return;
     }
     const { data } = supabase.storage.from('ellith-media').getPublicUrl(path);
     const nextSite = { ...site, music_url: data.publicUrl };
-    const payload = {
-      id: 1,
-      name: nextSite.name,
-      tagline: nextSite.tagline,
-      bio: nextSite.bio,
-      theme: nextSite.theme,
-      avatar_url: nextSite.avatar_url,
-      frame_url: nextSite.frame_url,
-      background_url: nextSite.background_url,
-      music_url: nextSite.music_url,
-      updated_at: new Date().toISOString()
-    };
+    saveLocal('ellith_site_v1', nextSite);
+    const payload = buildSitePayload(nextSite);
     const { error: saveError } = await supabase.from('site_content').upsert(payload);
     if (saveError) {
       await supabase.storage.from('ellith-media').remove([path]);
-      setNotice('อัปโหลดเพลงแล้ว แต่บันทึกเว็บไซต์ไม่สำเร็จ: ' + saveError.message);
+      showToast('อัปโหลดเพลงแล้ว แต่บันทึกเว็บไซต์ไม่สำเร็จ: ' + saveError.message);
       e.target.value = '';
       return;
     }
@@ -522,24 +759,47 @@ export default function App() {
       .order('created_at', { ascending: false });
     if (assetRows) setAssets(assetRows);
 
-    if (assetError) setNotice('อัปโหลดและบันทึกเพลงบนเว็บไซต์แล้ว แต่บันทึกคลังไฟล์ไม่สำเร็จ: ' + assetError.message);
-    else setNotice('อัปโหลดและบันทึกเพลงเรียบร้อยแล้ว หน้าเว็บไซต์พร้อมเล่นเพลงใหม่ทันที ♡');
+    if (assetError) showToast('อัปโหลดและบันทึกเพลงบนเว็บไซต์แล้ว แต่บันทึกคลังไฟล์ไม่สำเร็จ: ' + assetError.message);
+    else showToast('อัปโหลดและบันทึกเพลงเรียบร้อยแล้ว หน้าเว็บไซต์พร้อมเล่นเพลงใหม่ทันที ♡');
     e.target.value = '';
   }
+
   async function deleteAsset(asset) {
-    if (!confirm('ลบไฟล์นี้ออกจากคลังหรือไม่?')) return;
+    if (!supabase || !session) {
+      const nextAssets = assets.filter(item => item.id !== asset.id);
+      setAssets(nextAssets);
+      saveLocal('ellith_assets_v1', nextAssets);
+      showToast('ลบไฟล์ออกจากคลังเรียบร้อยแล้ว');
+      return;
+    }
     const { error } = await supabase.storage.from('ellith-media').remove([asset.path]);
-    if (error) { setNotice(error.message); return; }
+    if (error) { showToast(error.message); return; }
     await supabase.from('media_assets').delete().eq('id', asset.id);
     await refresh();
+    showToast('ลบไฟล์ออกจากคลังเรียบร้อยแล้ว');
   }
 
   const customTrackTitle = useMemo(() => {
-    if (!site.music_url || site.music_url === defaultMusicUrl) return 'In hallo';
-    const raw = fileLabelFor(site.music_url, 'In hallo').replace(/\.[a-z0-9]+$/i, '');
-    const cleaned = raw.replace(/^music-\d+-[a-z0-9]+$/i, 'ellith melody');
-    return cleaned.slice(0, 18) || 'In hallo';
-  }, [site.music_url]);
+    const manualTitle = (site.music_title ?? '').trim();
+    if (manualTitle) return manualTitle;
+    if (!site.music_url || site.music_url === defaultMusicUrl) return defaultMusicTitle;
+    const raw = fileLabelFor(site.music_url, defaultMusicTitle).replace(/\.[a-z0-9]+$/i, '');
+    const cleaned = raw.replace(/^music-\d+-[a-z0-9]+$/i, defaultMusicTitle);
+    return cleaned.slice(0, 24) || defaultMusicTitle;
+  }, [site.music_title, site.music_url]);
+
+  const customTrackArtist = useMemo(() => {
+    const manualArtist = (site.music_artist ?? '').trim();
+    return manualArtist || defaultMusicArtist;
+  }, [site.music_artist]);
+
+  const activeMusicCoverUrl = site.music_cover_url || defaultMusicCoverUrl;
+
+  const filteredAssets = useMemo(() => {
+    if (assetFilter === 'all') return assets;
+    if (assetFilter === 'music') return assets.filter(a => a.kind === 'music');
+    return assets.filter(a => a.kind !== 'music');
+  }, [assets, assetFilter]);
 
   const handleTimeUpdate = () => {
     const audio = audioRef.current;
@@ -562,6 +822,8 @@ export default function App() {
     handleTimeUpdate();
   };
 
+  const isAdminUnlocked = Boolean(session || localStudioMode);
+
   return <>
     <audio
       id="bg-music"
@@ -580,25 +842,793 @@ export default function App() {
       onPlay={() => setMusicOn(true)}
       onPause={() => setMusicOn(false)}
       onTimeUpdate={handleTimeUpdate}
+      onError={(e) => {
+        const audio = e.currentTarget;
+        if (audio && audio.src !== location.origin + defaultMusicUrl) {
+          audio.src = defaultMusicUrl;
+          if (!userPausedRef.current) {
+            audio.play().then(() => setMusicOn(true)).catch(() => {});
+          }
+        }
+      }}
     />
+    {!preloaderDone && page !== 'admin' && (
+      <div
+        className={'carousel-preloader ' + (preloaderFading ? 'is-fading ' : '') + (isCustomTheme ? 'theme-custom' : 'theme-' + (site.theme || 'pink'))}
+        style={isCustomTheme ? { '--custom-bg': customColors.background, '--custom-accent': customColors.accent, '--custom-text': customColors.text } : undefined}
+        onClick={() => {
+          if (!preloaderFading) {
+            setPreloaderProgress(100);
+            setPreloaderFading(true);
+            window.setTimeout(() => setPreloaderDone(true), 480);
+          }
+        }}
+        role="status"
+        aria-live="polite"
+        aria-label="กำลังโหลดเข้าสู่เว็บไซต์"
+      >
+        <div className="screen-lace screen-lace-top" aria-hidden="true" />
+        <div className="screen-lace screen-lace-bottom" aria-hidden="true" />
+
+        <div className="carousel-preloader-inner">
+          <div className="carousel-stage-wrap" aria-hidden="true">
+            <div className="carousel-ambient-glow" />
+            <div className="carousel-pedestal-ring" />
+
+            <div className="carousel-stage-3d">
+              <div className="carousel-rotor-3d">
+                {[-10, -7, -4, -1.5, 0, 1.5, 4, 7, 10].map((z, idx) => (
+                  <img
+                    key={`layer-${idx}`}
+                    src="/assets/aistudio/carousel_cutout.png"
+                    alt=""
+                    draggable="false"
+                    className={
+                      'carousel-layer-img ' +
+                      (z === 10 ? 'is-front-face' : z === -10 ? 'is-back-face' : 'is-depth-slice')
+                    }
+                    style={{
+                      '--slice-z': `${z}px`,
+                      '--slice-scale-x': z < 0 ? -1 : 1
+                    }}
+                  />
+                ))}
+
+                {[
+                  { angle: 0, symbol: '✧', y: '-18%' },
+                  { angle: 60, symbol: '♡', y: '8%' },
+                  { angle: 120, symbol: '✦', y: '-10%' },
+                  { angle: 180, symbol: '୨୧', y: '14%' },
+                  { angle: 240, symbol: '♡', y: '-14%' },
+                  { angle: 300, symbol: '✧', y: '6%' }
+                ].map((orb, idx) => (
+                  <span
+                    key={`orb-${idx}`}
+                    className="carousel-orbit-sparkle"
+                    style={{
+                      '--orb-angle': `${orb.angle}deg`,
+                      '--orb-y': orb.y
+                    }}
+                  >
+                    <i>{orb.symbol}</i>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="carousel-loader-box">
+            <div className="carousel-loader-header">
+              <span className="carousel-loader-label">
+                <i aria-hidden="true">୨୧</i> กำลังโหลด...
+              </span>
+              <span className="carousel-loader-pct">{preloaderProgress}%</span>
+            </div>
+
+            <div className="carousel-progress-track" aria-hidden="true">
+              <div
+                className="carousel-progress-fill"
+                style={{ width: `${ Math.max(6, preloaderProgress) }%` }}
+              >
+                <span className="carousel-progress-shimmer" />
+                <span className="carousel-progress-glider">♡</span>
+              </div>
+            </div>
+
+            <p className="carousel-loader-sub">
+              <span>✧</span> welcome to {site.name || 'ellith'}’s little world <span>✧</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
     {page === 'admin' ? (
       <main className="admin-shell">
-        <header className="admin-top"><a className="wordmark" href="#" onClick={() => { location.hash = ''; setPage('home'); }}>ellith<span>♡</span></a><span className="admin-label">STUDIO / ADMIN</span><a className="back-link" href="#">ดูหน้าเว็บไซต์ ↗</a></header>
-        {!session ? <section className="login-wrap"><div className="login-card"><div className="tiny-flower">✿</div><p className="eyebrow">A LITTLE MAGIC INSIDE</p><h1>Welcome back</h1><p className="muted">เข้าสู่ระบบเพื่อจัดการเว็บไซต์ ellith</p>
-          {!configured && <p className="warning">ยังไม่ได้ตั้งค่า Supabase — ดูวิธีตั้งค่าใน README.md</p>}
-          <form onSubmit={login} className="login-form"><label>Username / Email<input value={username} onChange={e => setUsername(e.target.value)} placeholder="admin@example.com" type="email" required /></label><label>Password<div className="password-wrap"><input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} placeholder="รหัสผ่าน" required /><button type="button" className="icon-btn" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff /> : <Eye />}</button></div></label>{loginError && <p className="error">{loginError}</p>}<button className="primary-btn full" disabled={!configured}>เข้าสู่ระบบ <span>♡</span></button></form><p className="tiny-note">บัญชีผู้ดูแลสร้างจาก Supabase Authentication</p></div></section> :
-        <div className="dashboard"><aside className="sidebar"><p className="eyebrow">WORKSPACE</p>{[['general','♡','ข้อมูลเว็บไซต์'],['links','↗','ช่องทางติดต่อ'],['images','✿','คลังรูปภาพ']].map(([id,ico,label])=><button key={id} className={'side-item '+(tab===id?'selected':'')} onClick={() => setTab(id)}><span>{ico}</span>{label}</button>)}<button className="side-item logout" onClick={logout}><LogOut />ออกจากระบบ</button></aside><section className="dash-content"><div className="dash-heading"><div><p className="eyebrow">HELLO, CREATOR</p><h1>จัดการเว็บไซต์ <em>ellith</em></h1><p className="muted">ทุกการเปลี่ยนแปลงอยู่ในมือคุณ ♡</p></div><span className="live-pill">● CONNECTED</span></div>
-        {notice && <div className="notice">{notice}</div>}
-        {tab === 'general' && <form className="panel form-grid" onSubmit={saveSite}><div className="panel-title"><Sparkles /><div><h2>ข้อมูลเว็บไซต์</h2><p>ปรับแต่งหน้าตาและข้อความหน้าแรก</p></div></div><label>ชื่อเว็บไซต์<input value={site.name} onChange={e=>setSite({...site,name:e.target.value})}/></label><label>ข้อความใต้ชื่อ<input value={site.tagline||''} onChange={e=>setSite({...site,tagline:e.target.value})}/></label><label className="wide">ข้อความแนะนำ<textarea rows="3" value={site.bio||''} onChange={e=>setSite({...site,bio:e.target.value})}/></label><label>โทนสี<select value={isCustomTheme ? 'custom' : (site.theme||'pink')} onChange={e=>setSite({...site,theme:e.target.value==='custom'?writeTheme(customColors):e.target.value})}><option value="pink">Pink & White</option><option value="lavender">Lavender</option><option value="cream">Soft Pink (เดิม)</option><option value="custom">กำหนดสีเอง</option></select></label>{isCustomTheme&&<div className="wide color-customizer"><p className="color-help">เลือกสีได้อย่างอิสระ แล้วกดบันทึกการเปลี่ยนแปลงเพื่อใช้บนหน้าเว็บ</p><label>สีพื้นหลัง <input className="color-input" type="color" value={customColors.background} onChange={e=>updateCustomColor('background',e.target.value)}/><code>{customColors.background}</code></label><label>สีหลัก / สีตกแต่ง <input className="color-input" type="color" value={customColors.accent} onChange={e=>updateCustomColor('accent',e.target.value)}/><code>{customColors.accent}</code></label><label>สีข้อความ <input className="color-input" type="color" value={customColors.text} onChange={e=>updateCustomColor('text',e.target.value)}/><code>{customColors.text}</code></label></div>}{[['avatar_url','รูปโปรไฟล์'],['frame_url','กรอบรูปโปรไฟล์'],['background_url','ภาพพื้นหลัง']].map(([field,label])=><div className="file-upload-field" key={field}><span className="field-label">{label}</span><div className="upload-only-box">{site[field] && <img className="upload-thumb" src={site[field]} alt={label} />}<span className="upload-filename" title={fileLabelFor(site[field], 'ยังไม่ได้เลือกไฟล์')}>{fileLabelFor(site[field], 'ยังไม่ได้เลือกไฟล์')}</span><label className="file-pick-btn" title="อัปโหลดไฟล์รูปภาพ"><Upload/><span>เลือกไฟล์รูป</span><input type="file" accept="image/*" onChange={e=>uploadImage(e,field)} hidden/></label>{site[field] && site[field] !== (field === 'frame_url' ? defaultFrameUrl : '') && <button type="button" className="icon-btn danger" onClick={()=>clearUploadedField(field)} title="ล้างไฟล์"><X/></button>}</div>{field==='frame_url'&&<small className="muted">แนะนำไฟล์กรอบรูป PNG พื้นหลังโปร่งใส เพื่อให้เห็นรูปโปรไฟล์ด้านใน</small>}</div>)}<div className="file-upload-field wide"><span className="field-label">เพลงพื้นหลัง (ไฟล์ MP3)</span><div className="upload-only-box"><span className="music-badge"><Music2/></span><span className="upload-filename" title={fileLabelFor(site.music_url, 'เพลงเริ่มต้นของเว็บไซต์')}>{site.music_url && site.music_url !== defaultMusicUrl ? fileLabelFor(site.music_url, 'อัปโหลดเพลงแล้ว') : 'เพลงกล่องดนตรีเริ่มต้น (พร้อมใช้งาน)'}</span><label className="file-pick-btn" title="อัปโหลดไฟล์เพลง MP3"><Upload/><span>เลือกไฟล์เพลง</span><input type="file" accept=".mp3,audio/mpeg,audio/mp3,audio/*" onChange={uploadMusic} hidden/></label>{site.music_url && site.music_url !== defaultMusicUrl && <button type="button" className="icon-btn danger" onClick={()=>clearUploadedField('music_url')} title="กลับไปใช้เพลงเริ่มต้น"><X/></button>}</div><small className="muted">อัปโหลดได้เฉพาะไฟล์เพลงจากเครื่อง (MP3 ขนาดไม่เกิน 10 MB)</small></div><div className="wide"><button className="primary-btn" disabled={saving}><Save/> {saving?'กำลังบันทึก…':'บันทึกการเปลี่ยนแปลง'}</button></div></form>}
-        {tab === 'links' && <div className="panel"><div className="panel-title"><Heart/><div><h2>ช่องทางการติดต่อ</h2><p>เพิ่มและแก้ไขลิงก์ที่แสดงบนหน้าเว็บไซต์</p></div></div><form className="link-editor" onSubmit={saveLink}><input required placeholder="ชื่อช่องทาง เช่น Instagram" value={linkForm.label} onChange={e=>setLinkForm({...linkForm,label:e.target.value})}/><input required type="url" placeholder="https://..." value={linkForm.url} onChange={e=>setLinkForm({...linkForm,url:e.target.value})}/><input placeholder="ข้อความสั้น ๆ (ไม่บังคับ)" value={linkForm.note} onChange={e=>setLinkForm({...linkForm,note:e.target.value})}/><div className="editor-actions"><button className="primary-btn"><Plus/> {editing?'บันทึกการแก้ไข':'เพิ่มช่องทาง'}</button>{editing&&<button type="button" className="soft-btn" onClick={()=>{setEditing(null);setLinkForm(emptyLink)}}>ยกเลิก</button>}</div></form><div className="managed-list">{links.map(link=><div className="managed-row" key={link.id}><div className="managed-icon">{iconFor(link.label)}</div><div className="managed-info"><b>{link.label}</b><small>{link.url}</small></div><button className="icon-btn" onClick={()=>{setEditing(link);setLinkForm({label:link.label,url:link.url,note:link.note||'',icon:link.icon||'link'})}}><Pencil/></button><button className="icon-btn danger" onClick={()=>deleteLink(link.id)}><Trash2/></button></div>)}</div></div>}
-        {tab === 'images' && <div className="panel"><div className="panel-title"><ImagePlus/><div><h2>คลังรูปภาพและไฟล์</h2><p>ไฟล์ที่อัปโหลดไว้ในเว็บไซต์</p></div></div><div className="asset-grid">{assets.map(asset=><div className="asset-card" key={asset.id}>{asset.kind==='music'?<div className="asset-music-preview"><Music2/></div>:<img src={asset.url} alt={asset.name}/>}<div className="asset-caption"><span>{asset.name}</span><button className="icon-btn danger" onClick={()=>deleteAsset(asset)} title="ลบไฟล์"><Trash2/></button></div><div className="asset-actions">{asset.kind==='music'?<button type="button" onClick={()=>applyAsset(asset,'music_url')}>ใช้เป็นเพลงพื้นหลัง</button>:<> <button type="button" onClick={()=>applyAsset(asset,'avatar_url')}>ใช้เป็นโลโก้</button><button type="button" onClick={()=>applyAsset(asset,'frame_url')}>ใช้เป็นกรอบโปรไฟล์</button><button type="button" onClick={()=>applyAsset(asset,'background_url')}>ใช้เป็นพื้นหลัง</button></>}</div></div>)}</div>{!assets.length&&<p className="muted">ยังไม่มีไฟล์ในคลัง ลองอัปโหลดจากหน้าข้อมูลเว็บไซต์</p>}</div>}
-        </section></div>}
+        <header className="admin-top">
+          <a className="wordmark" href="#" onClick={() => { location.hash = ''; setPage('home'); }}>ellith<span>♡</span></a>
+          {isAdminUnlocked && (
+            <nav className="admin-top-nav" aria-label="เมนูจัดการเว็บไซต์">
+              <button type="button" className={'admin-nav-link ' + (tab === 'general' ? 'active' : '')} onClick={() => setTab('general')}>ข้อมูลและอัปโหลดไฟล์</button>
+              <button type="button" className={'admin-nav-link ' + (tab === 'links' ? 'active' : '')} onClick={() => setTab('links')}>ช่องทางการติดต่อ ({links.length})</button>
+              <button type="button" className={'admin-nav-link ' + (tab === 'images' ? 'active' : '')} onClick={() => setTab('images')}>คลังไฟล์มีเดีย ({assets.length})</button>
+            </nav>
+          )}
+          <a className="back-link" href="#" onClick={() => { location.hash = ''; setPage('home'); }}>ดูหน้าเว็บไซต์จริง ↗</a>
+        </header>
+
+        {!isAdminUnlocked ? (
+          <section className="login-wrap">
+            <div className="login-card">
+              <div className="tiny-flower" aria-hidden="true">୨୧</div>
+              <p className="eyebrow">ELLITH STUDIO</p>
+              <h1>เข้าสู่ระบบจัดการเว็บไซต์</h1>
+              <p className="muted">ปรับแต่งโปรไฟล์ รูปภาพ เพลง และช่องทางการติดต่อของคุณ</p>
+              <form onSubmit={login} className="login-form">
+                <label>อีเมลผู้ดูแลระบบ
+                  <input value={username} onChange={e => setUsername(e.target.value)} placeholder="admin@example.com" type="email" required />
+                </label>
+                <label>รหัสผ่าน
+                  <div className="password-wrap">
+                    <input value={password} onChange={e => setPassword(e.target.value)} type={showPassword ? 'text' : 'password'} placeholder="รหัสผ่านของคุณ" required />
+                    <button type="button" className="icon-btn" onClick={() => setShowPassword(!showPassword)} title={showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน'}>
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </button>
+                  </div>
+                </label>
+                {loginError && <p className="error">{loginError}</p>}
+                <button className="primary-btn full" type="submit">เข้าสู่ระบบด้วยบัญชีผู้ดูแล <span>♡</span></button>
+              </form>
+              <div className="login-divider"><span>หรือ</span></div>
+              <button
+                type="button"
+                className="soft-btn full studio-quick-btn"
+                onClick={() => {
+                  setLocalStudioMode(true);
+                  showToast('เปิดโหมดแก้ไขเว็บไซต์ด่วนเรียบร้อยแล้ว ♡');
+                }}
+              >
+                <Sparkles size={15} /> เข้าใช้งานโหมดแก้ไขทันที (Quick Studio)
+              </button>
+            </div>
+          </section>
+        ) : (
+          <div className="dashboard">
+            <aside className="sidebar">
+              <div className="sidebar-group">
+                <p className="eyebrow">เมนูจัดการ</p>
+                {[
+                  ['general', <Sparkles size={16} />, 'ข้อมูลเว็บ & อัปโหลด', 'โปรไฟล์ ธีม รูป และเพลง'],
+                  ['links', <Heart size={16} />, 'ช่องทางการติดต่อ', `${publicLinks.length} รายการที่แสดง`],
+                  ['images', <ImagePlus size={16} />, 'คลังรูปภาพและไฟล์', `${assets.length} ไฟล์ในคลัง`]
+                ].map(([id, ico, label, sub]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    className={'side-item ' + (tab === id ? 'selected' : '')}
+                    onClick={() => setTab(id)}
+                  >
+                    <span className="side-item-icon">{ico}</span>
+                    <span className="side-item-copy">
+                      <strong>{label}</strong>
+                      <small>{sub}</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="sidebar-footer">
+                <button
+                  type="button"
+                  className="side-item reset-default-btn"
+                  onClick={() => {
+                    setSite(starter);
+                    saveLocal('ellith_site_v1', starter);
+                    showToast('คืนค่าเริ่มต้นของโปรไฟล์เรียบร้อยแล้ว ♡');
+                  }}
+                >
+                  <X size={15} /> คืนค่าเริ่มต้นโปรไฟล์
+                </button>
+                {session && (
+                  <button type="button" className="side-item logout" onClick={logout}>
+                    <LogOut size={15} /> ออกจากระบบ
+                  </button>
+                )}
+              </div>
+            </aside>
+
+            <section className="dash-content">
+              <div className="dash-heading">
+                <div>
+                  <p className="eyebrow">COQUETTE STUDIO EDITOR</p>
+                  <h1>จัดการหน้าโปรไฟล์ <em>{site.name || 'ellith'}</em></h1>
+                  <p className="muted">แก้ไขข้อมูล อัปโหลดไฟล์รูปและเพลงจากเครื่อง พร้อมดูตัวอย่างหน้าเว็บจริงด้านข้างได้ทันที</p>
+                </div>
+                <div className="dash-heading-actions">
+                  <button type="button" className="primary-btn" onClick={saveSite} disabled={saving}>
+                    <Save size={15} /> {saving ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}
+                  </button>
+                </div>
+              </div>
+
+              {notice && (
+                <div className="notice" role="status">
+                  <Sparkles size={15} />
+                  <span>{notice}</span>
+                </div>
+              )}
+
+              <div className="admin-workspace-grid">
+                <div className="admin-main-column">
+                  {tab === 'general' && (
+                    <form className="admin-sections-stack" onSubmit={saveSite}>
+                      <div className="panel">
+                        <div className="panel-title">
+                          <Sparkles />
+                          <div>
+                            <h2>ข้อความและข้อมูลหน้าโปรไฟล์</h2>
+                            <p>กำหนดชื่อ คำโปรย และข้อความต้อนรับบนหน้าแรก</p>
+                          </div>
+                        </div>
+                        <div className="form-grid">
+                          <label>
+                            <span>ชื่อโปรไฟล์ / ชื่อเว็บไซต์</span>
+                            <input
+                              value={site.name}
+                              placeholder="เช่น ellith"
+                              onChange={e => setSite({ ...site, name: e.target.value })}
+                            />
+                          </label>
+                          <label>
+                            <span>ข้อความใต้ชื่อ (Tagline)</span>
+                            <input
+                              value={site.tagline || ''}
+                              placeholder="เช่น a little place of magic"
+                              onChange={e => setSite({ ...site, tagline: e.target.value })}
+                            />
+                          </label>
+                          <label className="wide">
+                            <span className="label-row">
+                              <span>ข้อความแนะนำตัว (Bio)</span>
+                              <small className="char-counter">{(site.bio || '').length} ตัวอักษร</small>
+                            </span>
+                            <textarea
+                              rows="3"
+                              placeholder="เขียนข้อความต้อนรับน่ารักๆ..."
+                              value={site.bio || ''}
+                              onChange={e => setSite({ ...site, bio: e.target.value })}
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="panel">
+                        <div className="panel-title">
+                          <Heart />
+                          <div>
+                            <h2>โทนสีและบรรยากาศ (Theme)</h2>
+                            <p>เลือกชุดสีพาสเทลที่ต้องการ หรือปรับแต่งสีด้วยตัวเอง</p>
+                          </div>
+                        </div>
+                        <div className="theme-cards-grid">
+                          {themeOptions.map(opt => {
+                            const active = opt.id === 'custom' ? isCustomTheme : (!isCustomTheme && (site.theme || 'pink') === opt.id);
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                className={'theme-choice-card ' + (active ? 'active' : '')}
+                                onClick={() => setSite({ ...site, theme: opt.id === 'custom' ? writeTheme(customColors) : opt.id })}
+                              >
+                                <div className="theme-swatches">
+                                  {opt.swatches.map((hex, i) => (
+                                    <span key={i} className="theme-swatch-dot" style={{ backgroundColor: hex }} />
+                                  ))}
+                                </div>
+                                <div className="theme-choice-copy">
+                                  <strong>{opt.name}</strong>
+                                  <small>{opt.desc}</small>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {isCustomTheme && (
+                          <div className="color-customizer">
+                            <p className="color-help">คลิกที่ช่องสีเพื่อเลือกเฉดสีที่ต้องการ หน้าตัวอย่างด้านขวาจะเปลี่ยนตามทันที</p>
+                            <label>
+                              <span>สีพื้นหลัง</span>
+                              <div className="color-picker-row">
+                                <input className="color-input" type="color" value={customColors.background} onChange={e => updateCustomColor('background', e.target.value)} />
+                                <code>{customColors.background}</code>
+                              </div>
+                            </label>
+                            <label>
+                              <span>สีหลัก / สีโบว์และหัวใจ</span>
+                              <div className="color-picker-row">
+                                <input className="color-input" type="color" value={customColors.accent} onChange={e => updateCustomColor('accent', e.target.value)} />
+                                <code>{customColors.accent}</code>
+                              </div>
+                            </label>
+                            <label>
+                              <span>สีข้อความ</span>
+                              <div className="color-picker-row">
+                                <input className="color-input" type="color" value={customColors.text} onChange={e => updateCustomColor('text', e.target.value)} />
+                                <code>{customColors.text}</code>
+                              </div>
+                            </label>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="panel">
+                        <div className="panel-title">
+                          <Music2 />
+                          <div>
+                            <h2>ตั้งค่าเครื่องเล่นแผ่นเสียง (Vinyl Music Player)</h2>
+                            <p>ปรับแต่งชื่อเพลง ชื่อศิลปิน รูปตรงกลางแผ่นเสียง และไฟล์เพลง MP3 ได้ตามต้องการ</p>
+                          </div>
+                        </div>
+
+                        <div className="form-grid" style={{ marginBottom: '18px' }}>
+                          <label>
+                            <span>ชื่อเพลง (Song Title)</span>
+                            <input
+                              value={site.music_title ?? ''}
+                              placeholder="เช่น love."
+                              onChange={e => setSite({ ...site, music_title: e.target.value })}
+                            />
+                          </label>
+                          <label>
+                            <span>ชื่อศิลปิน (Artist Name)</span>
+                            <input
+                              value={site.music_artist ?? ''}
+                              placeholder="เช่น wave to earth"
+                              onChange={e => setSite({ ...site, music_artist: e.target.value })}
+                            />
+                          </label>
+                        </div>
+
+                        <div className="upload-cards-grid">
+                          <div className="upload-card">
+                            <div className="upload-card-preview vinyl-cover-preview">
+                              <div className="vinyl-mini-disc">
+                                <img src={activeMusicCoverUrl} alt="รูปแผ่นเพลง" />
+                              </div>
+                            </div>
+                            <div className="upload-card-body">
+                              <strong>รูปตรงแผ่นเพลง (Vinyl Cover)</strong>
+                              <small className="upload-card-hint">รูปวงกลมตรงกลางแผ่นเสียงไวนิลที่จะหมุนขณะเล่นเพลง</small>
+                              <span className="upload-filename" title={fileLabelFor(site.music_cover_url, 'รูปปกแผ่นเสียงเริ่มต้น')}>
+                                {!site.music_cover_url || site.music_cover_url === defaultMusicCoverUrl
+                                  ? 'รูปปกแผ่นเสียงเริ่มต้น (wave to earth)'
+                                  : fileLabelFor(site.music_cover_url, 'อัปโหลดรูปแผ่นเพลงแล้ว')}
+                              </span>
+                              <div className="upload-card-actions">
+                                <label className="file-pick-btn">
+                                  <Upload size={14} />
+                                  <span>เปลี่ยนรูปแผ่นเพลง</span>
+                                  <input type="file" accept="image/*" onChange={e => uploadImage(e, 'music_cover_url')} hidden />
+                                </label>
+                                {site.music_cover_url && site.music_cover_url !== defaultMusicCoverUrl && (
+                                  <button
+                                    type="button"
+                                    className="soft-btn danger-soft"
+                                    onClick={() => clearUploadedField('music_cover_url')}
+                                    title="ใช้รูปแผ่นเสียงเริ่มต้น"
+                                  >
+                                    <X size={14} /> รูปเริ่มต้น
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="upload-card upload-card-music">
+                            <div className="upload-card-preview music-preview-box">
+                              <Music2 size={26} />
+                            </div>
+                            <div className="upload-card-body">
+                              <strong>ไฟล์เพลงพื้นหลัง (MP3 / Audio)</strong>
+                              <small className="upload-card-hint">เล่นอัตโนมัติบนเครื่องเล่นแผ่นเสียงหน้าแรก (ไม่เกิน 10 MB)</small>
+                              <span className="upload-filename" title={fileLabelFor(site.music_url, 'เพลงเริ่มต้นของเว็บไซต์')}>
+                                {site.music_url && site.music_url !== defaultMusicUrl
+                                  ? `ไฟล์ปัจจุบัน: ${fileLabelFor(site.music_url, 'อัปโหลดเพลงแล้ว')}`
+                                  : 'เพลงปัจจุบัน: เพลงเริ่มต้นของเว็บไซต์'}
+                              </span>
+                              <div className="upload-card-actions">
+                                <label className="file-pick-btn">
+                                  <Upload size={14} />
+                                  <span>เลือกไฟล์เพลง MP3</span>
+                                  <input type="file" accept=".mp3,audio/mpeg,audio/mp3,audio/*" onChange={uploadMusic} hidden />
+                                </label>
+                                <button
+                                  type="button"
+                                  className="soft-btn"
+                                  onClick={toggleMusic}
+                                >
+                                  {musicOn ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                  <span>{musicOn ? 'หยุดฟังตัวอย่าง' : 'ทดลองฟังเพลง'}</span>
+                                </button>
+                                {site.music_url && site.music_url !== defaultMusicUrl && (
+                                  <button
+                                    type="button"
+                                    className="soft-btn danger-soft"
+                                    onClick={() => clearUploadedField('music_url')}
+                                  >
+                                    <X size={14} /> ใช้เพลงเริ่มต้น
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="panel">
+                        <div className="panel-title">
+                          <Upload />
+                          <div>
+                            <h2>อัปโหลดรูปภาพโปรไฟล์และพื้นหลัง</h2>
+                            <p>เลือกรูปโปรไฟล์ กรอบรูป และภาพพื้นหลังจากอุปกรณ์ของคุณโดยตรง</p>
+                          </div>
+                        </div>
+
+                        <div className="upload-cards-grid">
+                          {[
+                            ['avatar_url', 'รูปโปรไฟล์ (Avatar)', 'รูปที่จะแสดงอยู่ในกรอบหัวใจตรงกลาง'],
+                            ['frame_url', 'กรอบรูปโปรไฟล์ (PNG)', 'แนะนำไฟล์ PNG พื้นหลังโปร่งใส'],
+                            ['background_url', 'ภาพพื้นหลังเว็บไซต์', 'ภาพพื้นหลังเต็มหน้าจอแบบละมุน']
+                          ].map(([field, label, hint]) => {
+                            const hasValue = Boolean(site[field]);
+                            const isDefaultFrame = field === 'frame_url' && site[field] === defaultFrameUrl;
+                            return (
+                              <div className="upload-card" key={field}>
+                                <div className="upload-card-preview">
+                                  {hasValue ? (
+                                    <img src={site[field]} alt={label} />
+                                  ) : (
+                                    <div className="upload-card-empty">♡</div>
+                                  )}
+                                </div>
+                                <div className="upload-card-body">
+                                  <strong>{label}</strong>
+                                  <small className="upload-card-hint">{hint}</small>
+                                  <span className="upload-filename" title={fileLabelFor(site[field], 'ยังไม่ได้เลือกไฟล์')}>
+                                    {isDefaultFrame ? 'กรอบหัวใจวินเทจเริ่มต้น' : fileLabelFor(site[field], 'ยังไม่ได้อัปโหลดไฟล์')}
+                                  </span>
+                                  <div className="upload-card-actions">
+                                    <label className="file-pick-btn">
+                                      <Upload size={14} />
+                                      <span>อัปโหลดไฟล์รูป</span>
+                                      <input type="file" accept="image/*" onChange={e => uploadImage(e, field)} hidden />
+                                    </label>
+                                    {hasValue && !isDefaultFrame && (
+                                      <button
+                                        type="button"
+                                        className="soft-btn danger-soft"
+                                        onClick={() => clearUploadedField(field)}
+                                        title="รีเซ็ตไฟล์"
+                                      >
+                                        <X size={14} /> ล้างไฟล์
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        <div className="panel-footer-bar">
+                          <button type="submit" className="primary-btn" disabled={saving}>
+                            <Save size={15} /> {saving ? 'กำลังบันทึก…' : 'บันทึกข้อมูลเว็บไซต์ทั้งหมด'}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  )}
+
+                  {tab === 'links' && (
+                    <div className="admin-sections-stack">
+                      <div className="panel">
+                        <div className="panel-title">
+                          <Plus />
+                          <div>
+                            <h2>{editing ? 'แก้ไขช่องทางการติดต่อ' : 'เพิ่มช่องทางการติดต่อใหม่'}</h2>
+                            <p>คลิกปุ่มลัดด้านล่างเพื่อกรอกชื่อโซเชียลยอดนิยมอัตโนมัติ หรือพิมพ์เองได้เลย</p>
+                          </div>
+                        </div>
+
+                        <div className="preset-chips-row">
+                          <span className="preset-chips-label">เลือกด่วน:</span>
+                          {linkPresets.map(preset => (
+                            <button
+                              key={preset.label}
+                              type="button"
+                              className={'preset-chip-btn ' + (linkForm.label === preset.label ? 'active' : '')}
+                              onClick={() => setLinkForm({
+                                ...linkForm,
+                                label: preset.label,
+                                url: linkForm.url || preset.url,
+                                note: linkForm.note || preset.note
+                              })}
+                            >
+                              {preset.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        <form className="link-editor" onSubmit={saveLink}>
+                          <label>
+                            <span>ชื่อช่องทางติดต่อ</span>
+                            <input
+                              required
+                              placeholder="เช่น Instagram, Discord, TikTok"
+                              value={linkForm.label}
+                              onChange={e => setLinkForm({ ...linkForm, label: e.target.value })}
+                            />
+                          </label>
+                          <label>
+                            <span>ลิงก์ URL ปลายทาง</span>
+                            <input
+                              required
+                              type="url"
+                              placeholder="https://..."
+                              value={linkForm.url}
+                              onChange={e => setLinkForm({ ...linkForm, url: e.target.value })}
+                            />
+                          </label>
+                          <label className="wide">
+                            <span>ข้อความบรรยายใต้ชื่อปุ่ม (ไม่บังคับ)</span>
+                            <input
+                              placeholder="เช่น follow my little world ♡"
+                              value={linkForm.note}
+                              onChange={e => setLinkForm({ ...linkForm, note: e.target.value })}
+                            />
+                          </label>
+                          <div className="editor-actions wide">
+                            <button type="submit" className="primary-btn">
+                              <Plus size={15} /> {editing ? 'บันทึกการแก้ไขช่องทาง' : 'เพิ่มช่องทางติดต่อ'}
+                            </button>
+                            {editing && (
+                              <button
+                                type="button"
+                                className="soft-btn"
+                                onClick={() => { setEditing(null); setLinkForm(emptyLink); }}
+                              >
+                                ยกเลิกการแก้ไข
+                              </button>
+                            )}
+                          </div>
+                        </form>
+                      </div>
+
+                      <div className="panel">
+                        <div className="panel-title">
+                          <Heart />
+                          <div>
+                            <h2>รายการช่องทางการติดต่อทั้งหมด ({links.length})</h2>
+                            <p>จัดลำดับขึ้น-ลง เปิด/ปิดการแสดงผล หรือแก้ไขรายละเอียดได้ทันที</p>
+                          </div>
+                        </div>
+
+                        <div className="managed-list">
+                          {links.map((link, idx) => {
+                            const active = link.is_active !== false;
+                            return (
+                              <div className={'managed-row ' + (!active ? 'is-muted' : '')} key={link.id}>
+                                <span className="managed-order">0{idx + 1}</span>
+                                <div className="managed-icon">{iconFor(link.label)}</div>
+                                <div className="managed-info">
+                                  <div className="managed-title-line">
+                                    <b>{link.label}</b>
+                                    <span className="managed-note-text">· {link.note || 'connect with me'}</span>
+                                  </div>
+                                  <small>{link.url}</small>
+                                </div>
+                                <div className="managed-actions">
+                                  <button
+                                    type="button"
+                                    className="soft-action-btn"
+                                    disabled={idx === 0}
+                                    onClick={() => moveLink(idx, -1)}
+                                    title="เลื่อนขึ้น"
+                                  >
+                                    ↑
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="soft-action-btn"
+                                    disabled={idx === links.length - 1}
+                                    onClick={() => moveLink(idx, 1)}
+                                    title="เลื่อนลง"
+                                  >
+                                    ↓
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="soft-action-btn"
+                                    onClick={() => toggleLinkActive(link)}
+                                    title={active ? 'ซ่อนชั่วคราว' : 'แสดงบนหน้าเว็บ'}
+                                  >
+                                    {active ? <Eye size={14} /> : <EyeOff size={14} />}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="soft-action-btn"
+                                    onClick={() => {
+                                      setEditing(link);
+                                      setLinkForm({ label: link.label, url: link.url, note: link.note || '', icon: link.icon || 'link' });
+                                    }}
+                                    title="แก้ไข"
+                                  >
+                                    <Pencil size={14} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="soft-action-btn danger"
+                                    onClick={() => deleteLink(link.id)}
+                                    title="ลบช่องทาง"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {!links.length && (
+                            <div className="empty-state-box">
+                              <p>ยังไม่มีช่องทางการติดต่อ ลองเลือกปุ่มลัดด้านบนเพื่อเพิ่มลิงก์แรกของคุณ ♡</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {tab === 'images' && (
+                    <div className="panel">
+                      <div className="panel-title-bar">
+                        <div className="panel-title">
+                          <ImagePlus />
+                          <div>
+                            <h2>คลังรูปภาพและไฟล์เพลง ({filteredAssets.length})</h2>
+                            <p>เลือกนำไฟล์ที่เคยอัปโหลดไว้กลับมาใช้เป็นรูปโปรไฟล์ กรอบรูป พื้นหลัง หรือเพลงได้ทันที</p>
+                          </div>
+                        </div>
+                        <div className="segmented-filter">
+                          {[
+                            ['all', `ทั้งหมด (${assets.length})`],
+                            ['image', `รูปภาพ (${assets.filter(a => a.kind !== 'music').length})`],
+                            ['music', `เพลง (${assets.filter(a => a.kind === 'music').length})`]
+                          ].map(([id, label]) => (
+                            <button
+                              key={id}
+                              type="button"
+                              className={'seg-btn ' + (assetFilter === id ? 'active' : '')}
+                              onClick={() => setAssetFilter(id)}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {filteredAssets.length > 0 ? (
+                        <div className="asset-grid">
+                          {filteredAssets.map(asset => (
+                            <div className="asset-card" key={asset.id}>
+                              {asset.kind === 'music' ? (
+                                <div className="asset-music-preview">
+                                  <Music2 />
+                                  <small>MP3 Audio</small>
+                                </div>
+                              ) : (
+                                <img src={asset.url} alt={asset.name} />
+                              )}
+                              <div className="asset-caption">
+                                <span title={asset.name}>{asset.name}</span>
+                                <button type="button" className="icon-btn danger" onClick={() => deleteAsset(asset)} title="ลบไฟล์">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                              <div className="asset-actions">
+                                {asset.kind === 'music' ? (
+                                  <button type="button" onClick={() => applyAsset(asset, 'music_url')}>ใช้เป็นเพลงพื้นหลัง</button>
+                                ) : (
+                                  <>
+                                    <button type="button" onClick={() => applyAsset(asset, 'avatar_url')}>ใช้เป็นรูปโปรไฟล์</button>
+                                    <button type="button" onClick={() => applyAsset(asset, 'music_cover_url')}>ใช้เป็นรูปแผ่นเพลง</button>
+                                    <button type="button" onClick={() => applyAsset(asset, 'frame_url')}>ใช้เป็นกรอบโปรไฟล์</button>
+                                    <button type="button" onClick={() => applyAsset(asset, 'background_url')}>ใช้เป็นภาพพื้นหลัง</button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="empty-state-box">
+                          <p>ยังไม่มีไฟล์ในหมวดหมู่นี้ สามารถอัปโหลดรูปภาพและเพลงใหม่ได้จากแท็บ "ข้อมูลเว็บ & อัปโหลด"</p>
+                          <button type="button" className="soft-btn" onClick={() => setTab('general')}>
+                            ไปหน้าอัปโหลดไฟล์ ↗
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <aside className="admin-live-preview" aria-label="ตัวอย่างหน้าเว็บไซต์แบบเรียลไทม์">
+                  <div className="preview-header-bar">
+                    <div>
+                      <strong>ตัวอย่างหน้าเว็บไซต์จริง</strong>
+                      <small>อัปเดตตามการแก้ไขแบบเรียลไทม์</small>
+                    </div>
+                    <a
+                      href="#"
+                      className="preview-open-link"
+                      onClick={() => { location.hash = ''; setPage('home'); }}
+                    >
+                      เปิดเต็มจอ ↗
+                    </a>
+                  </div>
+
+                  <div
+                    className={'preview-phone-frame ' + (isCustomTheme ? 'theme-custom' : 'theme-' + (site.theme || 'pink'))}
+                    style={{
+                      ...(site.background_url ? { backgroundImage: `linear-gradient(${customColors.background}dd,${customColors.background}dd),url(${site.background_url})` } : {}),
+                      ...(isCustomTheme ? { '--custom-bg': customColors.background, '--custom-accent': customColors.accent, '--custom-text': customColors.text } : {})
+                    }}
+                  >
+                    <div className="preview-lace preview-lace-top" aria-hidden="true" />
+                    <div className="preview-card-inner">
+                      <div className="preview-ornament">୨୧　✧　୨୧</div>
+                      <div className="preview-avatar-stage">
+                        <div className="preview-avatar-circle">
+                          {site.avatar_url ? <img src={site.avatar_url} alt={site.name} /> : <span>♡</span>}
+                        </div>
+                        {site.frame_url && <img className="preview-frame-img" src={site.frame_url} alt="" />}
+                      </div>
+                      <p className="preview-eyebrow">WELCOME TO MY LITTLE WORLD</p>
+                      <h3 className="preview-name">{site.name || 'ellith'}</h3>
+                      <p className="preview-tagline">{site.tagline || 'a little place of magic'}</p>
+                      <p className="preview-bio">{site.bio || 'welcome to my little corner ♡'}</p>
+
+                      <button type="button" className="preview-mp3-mini" onClick={toggleMusic}>
+                        <span className={'preview-vinyl-disc ' + (musicOn ? 'is-playing' : '')}>
+                          <img src={activeMusicCoverUrl} alt="" />
+                        </span>
+                        <span className="preview-mp3-info">
+                          <strong>{customTrackTitle}</strong>
+                          <small>{customTrackArtist}</small>
+                        </span>
+                        <span className="preview-vinyl-btn">{musicOn ? '❚❚' : '▶'}</span>
+                      </button>
+
+                      <div className="preview-links-stack">
+                        {publicLinks.slice(0, 4).map(l => (
+                          <div className="preview-link-pill" key={l.id}>
+                            <strong>{l.label}</strong>
+                            <small>{l.note || 'connect with me'}</small>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="preview-lace preview-lace-bottom" aria-hidden="true" />
+                  </div>
+                </aside>
+              </div>
+            </section>
+          </div>
+        )}
       </main>
     ) : (
       <main className={'site-shell '+(isCustomTheme?'theme-custom':'theme-'+(site.theme||'pink'))} style={{...(site.background_url?{backgroundImage:`linear-gradient(${customColors.background}dd,${customColors.background}dd),url(${site.background_url})`}:{}),...(isCustomTheme?{'--custom-bg':customColors.background,'--custom-accent':customColors.accent,'--custom-text':customColors.text}:{})}}>
         <div className="screen-lace screen-lace-top" aria-hidden="true" />
         <div className="screen-lace screen-lace-bottom" aria-hidden="true" />
-        <div className="admin-shortcut"><a href="#admin" aria-label="เปิดหน้า Admin"><Heart size={17} fill="currentColor"/> <span>ADMIN</span></a></div>
+        <div className="admin-shortcut"><a href="#admin" aria-label="เปิดหน้า Admin"><img className="admin-heart-charm" src="/assets/aistudio/IMG_0363_aa669c23.png" alt="" aria-hidden="true" /> <span>ADMIN</span></a></div>
         <div className="floating-hearts" aria-hidden="true">
           {[
             { left: '10%', size: 16, duration: '14s', delay: '0s', sway: '18px' },
@@ -630,95 +1660,131 @@ export default function App() {
             <div className="avatar-frame">{site.avatar_url?<img src={site.avatar_url} alt={site.name}/>:<div className="avatar-placeholder">♡</div>}</div>
             {site.frame_url && <img className="avatar-frame-overlay" src={site.frame_url} alt="" aria-hidden="true" />}
           </div>
-          <p className="eyebrow">WELCOME TO MY LITTLE WORLD</p><h1>{site.name || 'ellith'}</h1><p className="tagline">{site.tagline || 'a little place of magic'}</p><div className="divider-ornament"><span>✧</span><i></i><span>♡</span><i></i><span>✧</span></div><p className="bio">{site.bio || 'welcome to my little corner ♡'}</p>
+          <p className="eyebrow">WELCOME TO MY LITTLE WORLD</p><h1>{site.name || 'ellith'}</h1><p className="tagline">{site.tagline || 'a little place of magic'}</p><div className="divider-ornament"><span>✧</span><i></i><span>♡</span><i></i><span>✧</span></div>
+          <p className="bio">
+            <span className="bio-text-content">{site.bio || 'welcome to my little corner ♡'}</span>
+            <span className="bio-garland" aria-hidden="true">
+              <img src="/assets/aistudio/IMG_0362_fe6bb9b8.png" alt="" />
+            </span>
+          </p>
           <div className="music-control">
-            <button
-              type="button"
-              className={'mp3-wheel ' + (musicOn ? 'playing' : '')}
+            <div
+              className={'vinyl-turntable ' + (musicOn ? 'is-playing' : 'is-paused')}
               onClick={toggleMusic}
+              role="button"
+              tabIndex={0}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMusic(); } }}
               aria-label={musicOn ? 'Pause music' : 'Play music'}
-              title={musicOn ? 'หยุดเพลงชั่วคราว' : 'เล่นเพลง'}
+              title={musicOn ? 'คลิกเพื่อหยุดเพลงชั่วคราว' : 'คลิกเพื่อเล่นเพลง'}
             >
-              <svg className="wheel-icon wheel-top" viewBox="0 0 20 18" aria-hidden="true">
-                <path d="M10 16.2 C9.4 15.7 2 10.6 2 5.7 C2 3.1 4.1 1.2 6.6 1.2 C8.1 1.2 9.4 2 10 3.1 C10.6 2 11.9 1.2 13.4 1.2 C15.9 1.2 18 3.1 18 5.7 C18 10.6 10.6 15.7 10 16.2 Z" fill="#f7b3cc" stroke="#b5748e" strokeWidth="1.3" strokeLinejoin="round" />
+              <div className="vinyl-disc">
+                <div className="vinyl-grooves" />
+                <div className="vinyl-label-ring">
+                  <img
+                    className={'vinyl-center-art ' + (activeMusicCoverUrl === defaultMusicCoverUrl ? 'is-default-art' : '')}
+                    src={activeMusicCoverUrl}
+                    alt=""
+                    draggable="false"
+                  />
+                </div>
+              </div>
+              <svg className="vinyl-tonearm" viewBox="0 0 70 155" aria-hidden="true">
+                <defs>
+                  <radialGradient id="tonearmBaseOuter" cx="45%" cy="38%" r="58%">
+                    <stop offset="0%" stopColor="#9aa0a6" />
+                    <stop offset="55%" stopColor="#52575d" />
+                    <stop offset="100%" stopColor="#2f3337" />
+                  </radialGradient>
+                  <radialGradient id="tonearmBaseInner" cx="38%" cy="32%" r="62%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="50%" stopColor="#d9dde2" />
+                    <stop offset="100%" stopColor="#8d939a" />
+                  </radialGradient>
+                  <linearGradient id="tonearmRod" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#b0b5bc" />
+                    <stop offset="45%" stopColor="#f7f9fb" />
+                    <stop offset="100%" stopColor="#7d838b" />
+                  </linearGradient>
+                </defs>
+                {/* Top counterweight stub */}
+                <rect x="17.5" y="3" width="7" height="7" rx="1.8" fill="url(#tonearmRod)" stroke="#7c8289" strokeWidth="0.6" />
+                <rect x="15.5" y="6.5" width="11" height="3.2" rx="1.2" fill="#d8dce1" stroke="#7c8289" strokeWidth="0.5" />
+                {/* Circular pivot base */}
+                <circle cx="21" cy="24" r="14.5" fill="url(#tonearmBaseOuter)" />
+                <circle cx="21" cy="24" r="9.2" fill="url(#tonearmBaseInner)" stroke="#595e64" strokeWidth="0.8" />
+                <circle cx="21" cy="24" r="3.2" fill="#b7bcc4" />
+                {/* Tonearm shaft */}
+                <path
+                  d="M21 24 L21 97 Q21 108 26.5 118 L34.5 132"
+                  fill="none"
+                  stroke="url(#tonearmRod)"
+                  strokeWidth="3.6"
+                  strokeLinecap="round"
+                />
+                {/* White slotted headshell */}
+                <g transform="translate(35.5, 133.5) rotate(-29)">
+                  <rect x="-5.8" y="-2" width="11.6" height="16.5" rx="2.2" fill="#f7f8fa" stroke="#adb3ba" strokeWidth="0.8" />
+                  <rect x="-3.1" y="2.2" width="2" height="8.5" rx="0.8" fill="#43484e" />
+                  <rect x="1.1" y="2.2" width="2" height="8.5" rx="0.8" fill="#43484e" />
+                </g>
               </svg>
-              <span className="wheel-hit wheel-hit-left" onClick={e => adjustVolume(-0.1, e)} title="ลดเสียงเพลง (-)">
-                <svg className="wheel-icon wheel-left" viewBox="0 0 22 14" aria-hidden="true">
-                  <path d="M10.2 2 L3 7 L10.2 12 Z M19.2 2 L12 7 L19.2 12 Z" fill="#f7b3cc" stroke="#b5748e" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="wheel-center">
-                {musicOn ? (
-                  <svg className="center-glyph" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="6" y="4.5" width="4.4" height="15" rx="2" fill="#f5a9c6" stroke="#c37f99" strokeWidth="1.1" />
-                    <rect x="13.6" y="4.5" width="4.4" height="15" rx="2" fill="#f5a9c6" stroke="#c37f99" strokeWidth="1.1" />
-                  </svg>
-                ) : (
-                  <svg className="center-glyph" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M8 5.2 C8 4.2 9.1 3.7 9.9 4.2 L18.4 10.2 C19.1 10.7 19.1 11.7 18.4 12.2 L9.9 18.2 C9.1 18.7 8 18.2 8 17.2 Z" fill="#f5a9c6" stroke="#c37f99" strokeWidth="1.1" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </span>
-              <span className="wheel-hit wheel-hit-right" onClick={e => adjustVolume(0.1, e)} title="เพิ่มเสียงเพลง (+)">
-                <svg className="wheel-icon wheel-right" viewBox="0 0 22 14" aria-hidden="true">
-                  <path d="M2.8 2 L10 7 L2.8 12 Z M11.8 2 L19 7 L11.8 12 Z" fill="#f7b3cc" stroke="#b5748e" strokeWidth="1.2" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <svg className="wheel-icon wheel-bottom" viewBox="0 0 20 20" aria-hidden="true">
-                <path d="M10 1.8 L12.3 6.8 L17.8 7.5 L13.7 11.3 L14.8 16.8 L10 14.1 L5.2 16.8 L6.3 11.3 L2.2 7.5 L7.7 6.8 Z" fill="#f7b3cc" stroke="#b5748e" strokeWidth="1.25" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <span className="music-note mp3-screen" onClick={toggleMusic} role="button" tabIndex={0} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleMusic(); } }}>
-              <span className="mp3-title-row">
-                <span className="mp3-sparkles-left" aria-hidden="true">✦</span>
-                <svg className="mp3-bow" viewBox="0 0 32 24" aria-hidden="true">
-                  <path d="M14 11 C8 4, 2 6, 3 12 C4 17, 10 16, 14 13 Z" fill="#f9bdd4" stroke="#b6718c" strokeWidth="1.3" strokeLinejoin="round" />
-                  <path d="M18 11 C24 4, 30 6, 29 12 C28 17, 22 16, 18 13 Z" fill="#f9bdd4" stroke="#b6718c" strokeWidth="1.3" strokeLinejoin="round" />
-                  <path d="M13.5 14 L9 21.5 L12.5 22 L15.2 15 Z" fill="#f7b0cb" stroke="#b6718c" strokeWidth="1.2" strokeLinejoin="round" />
-                  <path d="M18.5 14 L23 21.5 L19.5 22 L16.8 15 Z" fill="#f7b0cb" stroke="#b6718c" strokeWidth="1.2" strokeLinejoin="round" />
-                  <ellipse cx="16" cy="12.2" rx="2.6" ry="2.8" fill="#fcd1e2" stroke="#b6718c" strokeWidth="1.3" />
-                </svg>
-                <strong className="mp3-track-name">{customTrackTitle}</strong>
-                <svg className="mp3-heart" viewBox="0 0 22 20" aria-hidden="true">
-                  <path d="M10.5 17 C9.8 16.4 3 11.8 3.2 6.8 C3.4 4.1 5.6 2.3 8 2.5 C9.4 2.6 10.6 3.5 11.2 4.6 C12 3.6 13.4 2.9 14.8 3.1 C17.2 3.4 19 5.5 18.6 8.1 C17.9 12.8 11.2 16.5 10.5 17 Z" fill="#f9bfd6" stroke="#b6718c" strokeWidth="1.3" strokeLinejoin="round" />
-                </svg>
-                <span className="mp3-sparkles-right" aria-hidden="true">✦</span>
-              </span>
-              <span className="mp3-artist">{musicOn ? '(playing ♡)' : '(feat.aespa)'}</span>
-              <span className="mp3-progress-wrap" onClick={handleSeek} title="คลิกเพื่อเลื่อนช่วงเพลง">
-                <span className="mp3-progress-fill" style={{ width: `${musicProgress}%` }} />
-                <span className="mp3-progress-knob" style={{ left: `${musicProgress}%` }} />
-              </span>
-              <span className="mp3-bottom-row">
-                <span
-                  role="button"
-                  tabIndex={0}
-                  className="mp3-vol-btn"
-                  onClick={e => adjustVolume(-0.1, e)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); adjustVolume(-0.1, e); } }}
-                  title="ลดเสียงเพลง"
+            </div>
+
+            <div className="vinyl-player-right">
+              <div className="vinyl-meta" onClick={toggleMusic} title="คลิกเพื่อเล่น/หยุดเพลง">
+                <strong className="vinyl-title">{customTrackTitle}</strong>
+                <span className="vinyl-artist">{customTrackArtist}</span>
+              </div>
+
+              <div className="vinyl-controls-row">
+                <button
+                  type="button"
+                  className="vinyl-ctrl-btn"
+                  onClick={e => adjustVolume(-0.06, e)}
+                  title={`ลดเสียงเพลง (${Math.round(volume * 100)}%)`}
                   aria-label="ลดเสียงเพลง"
                 >
-                  <VolumeX size={11} />
-                  <b>−</b>
-                </span>
-                <span className="mp3-time">{musicTime} <small className="mp3-vol-pct">· {Math.round(volume * 100)}%</small></span>
-                <span
-                  role="button"
-                  tabIndex={0}
-                  className="mp3-vol-btn"
-                  onClick={e => adjustVolume(0.1, e)}
-                  onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); adjustVolume(0.1, e); } }}
-                  title="เพิ่มเสียงเพลง"
+                  <svg className="vinyl-ctrl-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect x="5.2" y="6" width="2.6" height="12" rx="0.9" fill="currentColor" />
+                    <path d="M18.2 6.3 C18.2 5.6 17.4 5.2 16.8 5.6 L8.8 11.1 C8.2 11.5 8.2 12.5 8.8 12.9 L16.8 18.4 C17.4 18.8 18.2 18.4 18.2 17.7 Z" fill="currentColor" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  className={'vinyl-ctrl-btn vinyl-play-btn ' + (musicOn ? 'playing' : '')}
+                  onClick={toggleMusic}
+                  title={musicOn ? 'หยุดเพลงชั่วคราว' : 'เล่นเพลง'}
+                  aria-label={musicOn ? 'Pause music' : 'Play music'}
+                >
+                  {musicOn ? (
+                    <svg className="vinyl-ctrl-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <rect x="7.2" y="5.8" width="3.4" height="12.4" rx="1" fill="currentColor" />
+                      <rect x="13.4" y="5.8" width="3.4" height="12.4" rx="1" fill="currentColor" />
+                    </svg>
+                  ) : (
+                    <svg className="vinyl-ctrl-icon" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8.5 6.1 C8.5 5.3 9.4 4.9 10.1 5.3 L18.2 11 C18.8 11.4 18.8 12.4 18.2 12.8 L10.1 18.5 C9.4 18.9 8.5 18.5 8.5 17.7 Z" fill="currentColor" />
+                    </svg>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  className="vinyl-ctrl-btn"
+                  onClick={e => adjustVolume(0.06, e)}
+                  title={`เพิ่มเสียงเพลง (${Math.round(volume * 100)}%)`}
                   aria-label="เพิ่มเสียงเพลง"
                 >
-                  <b>+</b>
-                  <Volume2 size={11} />
-                </span>
-              </span>
-            </span>
+                  <svg className="vinyl-ctrl-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5.8 6.3 C5.8 5.6 6.6 5.2 7.2 5.6 L15.2 11.1 C15.8 11.5 15.8 12.5 15.2 12.9 L7.2 18.4 C6.6 18.8 5.8 18.4 5.8 17.7 Z" fill="currentColor" />
+                    <rect x="16.2" y="6" width="2.6" height="12" rx="0.9" fill="currentColor" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="contact-list">{publicLinks.map((link,i)=><a className="contact-link" href={link.url} target="_blank" rel="noreferrer" key={link.id}><span className="contact-icon">{iconFor(link.label)}</span><span className="contact-copy"><b>{link.label}</b><small>{link.note || 'connect with me'}</small></span><ExternalLink className="external-icon"/><span className="link-number">0{i+1}</span></a>)}</div>
+          <div className="contact-list">{publicLinks.map((link,i)=><a className="contact-link" href={link.url} target="_blank" rel="noreferrer" key={link.id}><span className="contact-pearl-trim" aria-hidden="true" /><span className="contact-icon">{iconFor(link.label)}</span><span className="contact-copy"><b>{link.label}</b><small>{link.note || 'connect with me'}</small></span><ExternalLink className="external-icon"/><span className="link-number">0{i+1}</span></a>)}</div>
           {!publicLinks.length&&<p className="muted">ช่องทางการติดต่อจะปรากฏที่นี่ ♡</p>}
           <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
           <p
