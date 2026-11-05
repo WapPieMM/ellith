@@ -39,21 +39,28 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [showIntro]);
 
-  // Tiny coquette sparkles on every pointer interaction (mouse, pen, or touch).
+  // Visible coquette burst on mouse clicks and touchscreen taps.
   useEffect(() => {
-    const symbols = ['♡', '✧', '♥', '୨୧', '✦'];
+    const symbols = ['✧', '♡', '✦', '୨୧', '·', '♥'];
     const onPointerDown = (event) => {
       if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-      const particle = document.createElement('span');
-      particle.className = 'touch-sparkle';
-      particle.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-      particle.setAttribute('aria-hidden', 'true');
-      particle.style.left = event.clientX + 'px';
-      particle.style.top = event.clientY + 'px';
-      particle.style.setProperty('--drift-x', (Math.random() * 64 - 32) + 'px');
-      particle.style.setProperty('--drift-y', (-42 - Math.random() * 42) + 'px');
-      document.body.appendChild(particle);
-      window.setTimeout(() => particle.remove(), 950);
+      const burst = document.createElement('span');
+      burst.className = 'tap-burst';
+      burst.setAttribute('aria-hidden', 'true');
+      burst.style.left = event.clientX + 'px';
+      burst.style.top = event.clientY + 'px';
+      symbols.forEach((symbol, index) => {
+        const particle = document.createElement('i');
+        const angle = (Math.PI * 2 * index) / symbols.length;
+        const distance = index % 2 ? 34 : 48;
+        particle.textContent = symbol;
+        particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        particle.style.setProperty('--delay', (index * 18) + 'ms');
+        burst.appendChild(particle);
+      });
+      document.body.appendChild(burst);
+      window.setTimeout(() => burst.remove(), 850);
     };
     window.addEventListener('pointerdown', onPointerDown, { passive: true });
     return () => window.removeEventListener('pointerdown', onPointerDown);
@@ -193,5 +200,20 @@ export default function App() {
       <footer>made with <Heart size={12} fill="currentColor"/> & a little magic <span>✧</span></footer>
       <p className="bottom-note">♡ thank you for visiting ♡</p>
     </section>
-  </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite"><span className="loading-heart heart-one">♡</span><span className="loading-heart heart-two">♥</span><span className="loading-heart heart-three">♡</span><span className="loading-heart heart-four">✧</span><div className="loading-orbit"><span>✿</span></div><p className="loading-brand">ellith</p><p className="loading-message">กำลังโหลดความมหัศจรรย์...</p><div className="loading-track"><i /></div><span className="loading-sparkles">✧　♡　✧</span></div>}</>;
+  </main>{showIntro && <div className="loading-screen" role="status" aria-live="polite">
+    <div className="loading-grain" aria-hidden="true" />
+    <span className="loader-deco deco-left">୨୧</span><span className="loader-deco deco-right">✧</span>
+    <span className="loader-heart loader-heart-a">♡</span><span className="loader-heart loader-heart-b">♥</span>
+    <span className="loader-heart loader-heart-c">✦</span><span className="loader-heart loader-heart-d">♡</span>
+    <section className="loader-card">
+      <div className="loader-ribbon">A LITTLE PLACE OF MAGIC</div>
+      <div className="loader-emblem"><span className="emblem-orbit orbit-one" /><span className="emblem-orbit orbit-two" /><span className="emblem-flower">✿</span><span className="emblem-bow">୨୧</span></div>
+      <p className="loader-kicker">WELCOME TO</p><p className="loading-brand">ellith</p>
+      <div className="loader-divider"><i />♡<i /></div>
+      <p className="loading-message">opening a little world of dreams...</p>
+      <div className="loading-track"><i /></div>
+      <div className="loader-foot"><span>♡</span> PLEASE WAIT A MOMENT <span>♡</span></div>
+    </section>
+    <p className="loader-bottom">made with love & daydreams</p>
+  </div>}</>;
 }
